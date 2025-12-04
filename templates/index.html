@@ -23,65 +23,78 @@
 
   <style>
     :root{
-      --bg: #020617;
-      --bg-card: #0b1120;
-      --bg-soft: #111827;
-      --accent: #3b82f6;
-      --accent-soft: #1d4ed8;
-      --accent-green: #22c55e;
-      --text-main: #e5e7eb;
-      --text-soft: #9ca3af;
-      --border-soft: rgba(148,163,184,0.35);
-      --danger: #ef4444;
-      --warning: #eab308;
+      --bg: #f3f4f6;
+      --bg-card: #ffffff;
+      --accent: #005ca9;      /* azul GM */
+      --accent-soft: #0ea5e9;
+      --accent-green: #16a34a;
+      --text-main: #111827;
+      --text-soft: #6b7280;
+      --border-soft: #dde1e7;
+      --danger: #dc2626;
+      --warning: #d97706;
     }
 
     * { box-sizing: border-box; }
 
     body {
-      background: radial-gradient(circle at top, #020617 0, #000 60%);
+      background: var(--bg);
       color: var(--text-main);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
+    .top-bar {
+      width: 100%;
+      background: var(--accent);
+      color: #ffffff;
+      padding: 0.45rem 0.75rem;
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .top-bar-title {
+      font-weight: 600;
+    }
+
     .wrapper {
-      max-width: 1280px;
+      max-width: 1320px;
       margin: 0 auto;
-      padding: 1.5rem 0 3rem;
+      padding: 1.25rem 0 2.5rem;
     }
 
     .card-shell {
-      background: linear-gradient(145deg, #020617, #020617 40%, #030712 100%);
-      border-radius: 16px;
+      background: var(--bg-card);
+      border-radius: 10px;
       border: 1px solid var(--border-soft);
-      box-shadow: 0 22px 45px rgba(15,23,42,0.85);
+      box-shadow: 0 2px 4px rgba(15,23,42,0.05);
     }
 
     .card-inner {
-      background: radial-gradient(circle at top left, #111827 0, #020617 60%);
-      border-radius: 14px;
-      padding: 1.1rem 1.25rem;
+      border-radius: 10px;
+      padding: 0.9rem 1rem;
     }
 
     .badge-chip {
       font-size: 0.75rem;
       padding: 0.2rem 0.7rem;
       border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.6);
-      color: #cbd5f5;
-      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(148,163,184,0.7);
+      color: var(--accent);
+      background: #e0ebf7;
     }
 
     .badge-chip-primary {
-      background-image: linear-gradient(135deg, #3b82f6, #22c55e);
+      background: linear-gradient(135deg, #0ea5e9, #22c55e);
       border-color: transparent;
-      color: #f9fafb;
-      box-shadow: 0 0 14px rgba(56,189,248,0.6);
+      color: #ffffff;
     }
 
     .kpi-value {
-      font-size: 2.1rem;
+      font-size: 2rem;
       font-weight: 700;
+      color: var(--accent);
     }
 
     .kpi-label {
@@ -94,7 +107,7 @@
     .section-title {
       font-size: 0.95rem;
       font-weight: 600;
-      margin-bottom: 0.2rem;
+      margin-bottom: 0.15rem;
     }
 
     .section-sub {
@@ -110,10 +123,11 @@
       text-transform: uppercase;
       letter-spacing: 0.06em;
       font-weight: 600;
+      color: #ffffff;
     }
-    .pill-risk-alto   { background: var(--danger);  color: #fee2e2; }
-    .pill-risk-medio  { background: var(--warning); color: #fef9c3; }
-    .pill-risk-baixo  { background: var(--accent-soft); color: #dbeafe; }
+    .pill-risk-alto   { background: var(--danger); }
+    .pill-risk-medio  { background: var(--warning); }
+    .pill-risk-baixo  { background: var(--accent-green); }
 
     .small-muted {
       font-size: 0.78rem;
@@ -121,26 +135,25 @@
     }
 
     .list-row {
-      padding: 0.25rem 0;
-      border-bottom: 1px solid rgba(31,41,55,0.9);
-      font-size: 0.84rem;
+      padding: 0.28rem 0;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 0.85rem;
     }
     .list-row:last-child { border-bottom: none; }
 
     .list-row-clickable {
       cursor: pointer;
-      transition: background 0.15s ease, transform 0.1s ease;
+      transition: background 0.12s ease;
     }
     .list-row-clickable:hover {
-      background: rgba(15,23,42,0.9);
-      transform: translateX(2px);
+      background: #f9fafb;
     }
 
     #map {
       width: 100%;
       height: 260px;
-      border-radius: 12px;
-      border: 1px solid rgba(31,41,55,0.9);
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
       overflow: hidden;
     }
 
@@ -151,517 +164,528 @@
 
     .badge-soft {
       font-size: 0.7rem;
-      padding: 0.1rem 0.45rem;
+      padding: 0.12rem 0.45rem;
       border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.7);
+      border: 1px solid #e5e7eb;
       color: var(--text-soft);
+      background: #f9fafb;
     }
 
     .filter-chip {
       font-size: 0.75rem;
       padding: 0.16rem 0.6rem;
       border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.5);
+      border: 1px solid #d1d5db;
       cursor: pointer;
       color: var(--text-soft);
-      background: transparent;
+      background: #ffffff;
       margin-right: 0.25rem;
       margin-bottom: 0.1rem;
     }
     .filter-chip.active {
-      background: linear-gradient(135deg, #3b82f6, #22c55e);
-      color: #f9fafb;
-      border-color: transparent;
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
     }
 
     .chip-critico {
       font-size: 0.8rem;
       padding: 0.18rem 0.6rem;
       border-radius: 999px;
-      background: rgba(239,68,68,0.12);
-      border: 1px solid rgba(239,68,68,0.8);
-      color: #fecaca;
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
     }
 
     .chip-info {
       font-size: 0.8rem;
       padding: 0.18rem 0.6rem;
       border-radius: 999px;
-      background: rgba(59,130,246,0.12);
-      border: 1px solid rgba(59,130,246,0.8);
-      color: #bfdbfe;
+      background: #e0f2fe;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
     }
 
     @media (max-width: 991.98px) {
       .wrapper { padding-inline: 0.75rem; }
-      .kpi-value { font-size: 1.7rem; }
+      .kpi-value { font-size: 1.6rem; }
     }
   </style>
 </head>
 
 <body>
-<div class="wrapper">
-
-  <!-- HEADER -->
-  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-    <div>
-      <h2 class="mb-1 fw-bold">Painel Preditivo</h2>
-      <div class="small-muted">
-        Jardim Camburi — atualização em {{ ultima_atualizacao }}
-      </div>
-    </div>
-    <div class="d-flex flex-wrap gap-2">
-      <span class="badge-chip badge-chip-primary">Forecast 24h</span>
-      <span class="badge-chip">Histórico desde 2020</span>
-      <span class="badge-chip">Atualização automática (Excel / Drive)</span>
-    </div>
+  <!-- barra superior estilo sistema -->
+  <div class="top-bar">
+    <div class="top-bar-title">Guarda Municipal — Painel Preditivo Jardim Camburi</div>
+    <div class="small-muted text-white">Atualizado em {{ ultima_atualizacao }}</div>
   </div>
 
-  <!-- KPIs -->
-  <div class="row g-3 mb-3">
-    {% for k in kpis %}
-    <div class="col-6 col-lg-3">
-      <div class="card-shell h-100">
-        <div class="card-inner">
-          <div class="kpi-value">{{ k.valor }}</div>
-          <div class="kpi-label">{{ k.nome }}</div>
+  <div class="wrapper">
+
+    <!-- HEADER LOCAL -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+      <div>
+        <h5 class="mb-1 fw-semibold">Visão geral da predição</h5>
+        <div class="small-muted">
+          Base histórica desde 2020 • Atualização automática (Excel / Google Drive)
         </div>
       </div>
-    </div>
-    {% endfor %}
-  </div>
-
-  <!-- BLOCOS TÁTICOS DE DECISÃO -->
-  <div class="row g-3 mb-3">
-    <!-- Janela crítica imediata -->
-    <div class="col-lg-4">
-      <div class="card-shell h-100">
-        <div class="card-inner">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <span class="section-title">Janela crítica imediata</span>
-            <span class="badge-soft">próximas 2h</span>
-          </div>
-          {% if projecoes_24h %}
-            {% for p in projecoes_24h|sort(attribute='valor_previsto', reverse=True) %}
-              {% if loop.index <= 2 %}
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <div>
-                  <div><strong>{{ "%02d"|format(p.hora) }}h</strong></div>
-                  <div class="small-muted">Risco {{ p.risco }}</div>
-                </div>
-                <div class="text-end">
-                  <div class="chip-critico">↑ estimado: {{ p.valor_previsto }}</div>
-                </div>
-              </div>
-              {% endif %}
-            {% endfor %}
-          {% else %}
-            <div class="small-muted">Sem previsão calculada.</div>
-          {% endif %}
-        </div>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge-chip badge-chip-primary">Forecast 24h</span>
+        <span class="badge-chip">Jardim Camburi</span>
       </div>
     </div>
 
-    <!-- Ponto mais sensível -->
-    <div class="col-lg-4">
-      <div class="card-shell h-100">
-        <div class="card-inner">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <span class="section-title">Ponto mais sensível</span>
-            <span class="badge-soft">histórico</span>
-          </div>
-          {% if top_logradouros %}
-            {% set log = top_logradouros[0] %}
-            <div class="mb-1">
-              <strong>{{ log.logradouro }}</strong>
-            </div>
-            <div class="small-muted">
-              Total de {{ log.total }} registros desde o início da série.
-            </div>
-            <div class="mt-2 chip-info">
-              Priorizar PB e rondas dirigidas neste logradouro.
-            </div>
-          {% else %}
-            <div class="small-muted">Sem dados de logradouros.</div>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-
-    <!-- Combinação dia x hora mais crítica -->
-    <div class="col-lg-4">
-      <div class="card-shell h-100">
-        <div class="card-inner">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <span class="section-title">Combinação histórica crítica</span>
-            <span class="badge-soft">dia × hora</span>
-          </div>
-          {% set top_h = top_horarios[0] if top_horarios else None %}
-          {% set saz = sazonalidade[0] if sazonalidade else None %}
-          {% if top_h or saz %}
-            <div class="mb-1">
-              {% if saz %}
-                <div><strong>{{ saz.padrao }}</strong></div>
-              {% endif %}
-              {% if top_h %}
-                <div class="small-muted">Horário de maior concentração: {{ "%02d"|format(top_h.hora) }}h (risco {{ top_h.risco }}).</div>
-              {% endif %}
-            </div>
-            <div class="chip-info">
-              Melhor janela para operações planejadas e saturação.
-            </div>
-          {% else %}
-            <div class="small-muted">Ainda não há padrão estável registrado.</div>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- FORECAST + LISTA DE PRÓXIMOS RISCOS -->
-  <div class="row g-3 mb-3">
-    <div class="col-lg-7">
-      <div class="card-shell h-100">
-        <div class="card-inner h-100 d-flex flex-column">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <div class="section-title mb-0">Forecast 24h por horário</div>
-            <span class="badge-soft">média histórica</span>
-          </div>
-
-          <div class="mb-2">
-            <button class="filter-chip active" data-range="all">24h</button>
-            <button class="filter-chip" data-range="madrugada">00–05h</button>
-            <button class="filter-chip" data-range="manha">06–11h</button>
-            <button class="filter-chip" data-range="tarde">12–17h</button>
-            <button class="filter-chip" data-range="noite">18–23h</button>
-          </div>
-
-          <div class="flex-grow-1 d-flex">
-            <canvas id="forecastChart" class="flex-grow-1"></canvas>
+    <!-- KPIs -->
+    <div class="row g-3 mb-3">
+      {% for k in kpis %}
+      <div class="col-6 col-lg-3">
+        <div class="card-shell h-100">
+          <div class="card-inner">
+            <div class="kpi-value">{{ k.valor }}</div>
+            <div class="kpi-label">{{ k.nome }}</div>
           </div>
         </div>
       </div>
+      {% endfor %}
     </div>
 
-    <!-- próximos riscos -->
-    <div class="col-lg-5">
-      <div class="card-shell h-100">
-        <div class="card-inner h-100 d-flex flex-column">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <span class="section-title">Próximos riscos previstos</span>
-            <span class="badge-soft">ranking por hora</span>
-          </div>
-          <div class="flex-grow-1" style="max-height: 230px; overflow-y:auto;">
+    <!-- BLOCOS TÁTICOS -->
+    <div class="row g-3 mb-3">
+      <!-- Janela crítica imediata -->
+      <div class="col-lg-4">
+        <div class="card-shell h-100">
+          <div class="card-inner">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="section-title">Janela crítica imediata</span>
+              <span class="badge-soft">Top 2 horários</span>
+            </div>
             {% if projecoes_24h %}
               {% for p in projecoes_24h|sort(attribute='valor_previsto', reverse=True) %}
-              <div class="list-row d-flex justify-content-between align-items-center"
-                   data-hour-timeline="{{ p.hora }}">
-                <div>
-                  <strong>{{ "%02d"|format(p.hora) }}h</strong>
-                  <span class="small-muted ms-1">estimado {{ p.valor_previsto }}</span>
+                {% if loop.index <= 2 %}
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <div>
+                    <div><strong>{{ "%02d"|format(p.hora) }}h</strong></div>
+                    <div class="small-muted">Risco {{ p.risco }}</div>
+                  </div>
+                  <div class="chip-critico">
+                    Estimado: {{ p.valor_previsto }}
+                  </div>
                 </div>
-                <span class="pill-risk
-                  {% if p.risco == 'alto' %}pill-risk-alto
-                  {% elif p.risco == 'médio' %}pill-risk-medio
-                  {% else %}pill-risk-baixo
-                  {% endif %}">
-                  {{ p.risco }}
-                </span>
-              </div>
+                {% endif %}
               {% endfor %}
             {% else %}
-              <div class="small-muted">Sem projeções calculadas.</div>
+              <div class="small-muted">Sem previsão calculada.</div>
             {% endif %}
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- HORÁRIOS / LOGRADOUROS / MAPA -->
-  <div class="row g-3 mb-3">
-    <!-- Horários críticos -->
-    <div class="col-lg-3">
-      <div class="card-shell h-100">
-        <div class="card-inner h-100 d-flex flex-column">
-          <div class="section-title mb-1">Horários de maior pressão</div>
-          <div class="flex-grow-1">
-            {% if top_horarios %}
-              {% for h in top_horarios %}
-              <div class="list-row list-row-clickable d-flex justify-content-between align-items-center"
-                   data-hour="{{ h.hora }}">
-                <span>{{ "%02d"|format(h.hora) }}h</span>
-                <span class="pill-risk
-                  {% if h.risco == 'alto' %}pill-risk-alto
-                  {% elif h.risco == 'medio' %}pill-risk-medio
-                  {% else %}pill-risk-baixo
-                  {% endif %}">
-                  {{ h.risco|capitalize }}
-                </span>
-              </div>
-              {% endfor %}
-            {% else %}
-              <div class="small-muted">Sem dados suficientes.</div>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Logradouros -->
-    <div class="col-lg-4">
-      <div class="card-shell h-100">
-        <div class="card-inner h-100 d-flex flex-column">
-          <div class="section-title mb-1">Logradouros com maior incidência</div>
-          <div class="flex-grow-1">
+      <!-- Ponto mais sensível -->
+      <div class="col-lg-4">
+        <div class="card-shell h-100">
+          <div class="card-inner">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="section-title">Ponto mais sensível (histórico)</span>
+              <span class="badge-soft">Top 1 logradouro</span>
+            </div>
             {% if top_logradouros %}
-              {% for l in top_logradouros %}
-              <div class="list-row list-row-clickable d-flex justify-content-between align-items-center"
-                   data-logradouro="{{ l.logradouro | upper }}">
-                <div>{{ l.logradouro }}</div>
-                <strong>{{ l.total }}</strong>
+              {% set log = top_logradouros[0] %}
+              <div class="mb-1">
+                <strong>{{ log.logradouro }}</strong>
               </div>
-              {% endfor %}
+              <div class="small-muted">
+                {{ log.total }} registros acumulados.
+              </div>
+              <div class="mt-2 chip-info">
+                Indicado para PB / rondas dirigidas.
+              </div>
             {% else %}
-              <div class="small-muted">Sem dados.</div>
+              <div class="small-muted">Sem dados de logradouros.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Combinação histórica crítica -->
+      <div class="col-lg-4">
+        <div class="card-shell h-100">
+          <div class="card-inner">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="section-title">Combinação histórica crítica</span>
+              <span class="badge-soft">Dia × Hora</span>
+            </div>
+            {% set top_h = top_horarios[0] if top_horarios else None %}
+            {% set saz = sazonalidade[0] if sazonalidade else None %}
+            {% if top_h or saz %}
+              <div class="mb-1">
+                {% if saz %}
+                  <div><strong>{{ saz.padrao }}</strong></div>
+                {% endif %}
+                {% if top_h %}
+                  <div class="small-muted">
+                    Horário com maior pressão: {{ "%02d"|format(top_h.hora) }}h (risco {{ top_h.risco }}).
+                  </div>
+                {% endif %}
+              </div>
+              <div class="chip-info">
+                Melhor janela para operações planejadas.
+              </div>
+            {% else %}
+              <div class="small-muted">Padrão ainda não definido na série.</div>
             {% endif %}
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Mapa -->
-    <div class="col-lg-5">
-      <div class="card-shell h-100">
-        <div class="card-inner h-100 d-flex flex-column">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <span class="section-title mb-0">Mapa tático</span>
-            <span class="badge-soft">logradouros agregados</span>
-          </div>
-          <div id="map" class="mt-1 flex-grow-1"></div>
-        </div>
-      </div>
-    </div>
-  </div>
+    <!-- FORECAST + RANKING -->
+    <div class="row g-3 mb-3">
+      <!-- Forecast -->
+      <div class="col-lg-7">
+        <div class="card-shell h-100">
+          <div class="card-inner h-100 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <div class="section-title mb-0">Forecast 24h por hora</div>
+              <span class="badge-soft">média histórica</span>
+            </div>
 
-  <!-- ALERTAS -->
-  <div class="row g-3">
-    <div class="col-12">
-      <div class="card-shell">
-        <div class="card-inner">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <span class="section-title">Alertas automáticos</span>
-            <span class="badge-soft">desvios relevantes</span>
-          </div>
-          <div class="d-flex flex-wrap gap-3">
-            {% if alertas %}
-              {% for a in alertas %}
-              <div class="chip-critico">
-                <strong>{{ a.titulo }}</strong>
-                <span class="small-muted ms-1">{{ a.descricao }}</span>
-              </div>
-              {% endfor %}
-            {% else %}
-              <span class="small-muted">Nenhum alerta crítico no momento.</span>
-            {% endif %}
+            <div class="mb-2">
+              <button class="filter-chip active" data-range="all">24h</button>
+              <button class="filter-chip" data-range="madrugada">00–05h</button>
+              <button class="filter-chip" data-range="manha">06–11h</button>
+              <button class="filter-chip" data-range="tarde">12–17h</button>
+              <button class="filter-chip" data-range="noite">18–23h</button>
+            </div>
+
+            <div class="flex-grow-1 d-flex">
+              <canvas id="forecastChart" class="flex-grow-1"></canvas>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- Ranking próximos riscos -->
+      <div class="col-lg-5">
+        <div class="card-shell h-100">
+          <div class="card-inner h-100 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="section-title">Próximos riscos previstos</span>
+              <span class="badge-soft">Ranking</span>
+            </div>
+            <div class="flex-grow-1" style="max-height: 230px; overflow-y:auto;">
+              {% if projecoes_24h %}
+                {% for p in projecoes_24h|sort(attribute='valor_previsto', reverse=True) %}
+                <div class="list-row list-row-clickable d-flex justify-content-between align-items-center"
+                     data-hour-timeline="{{ p.hora }}">
+                  <div>
+                    <strong>{{ "%02d"|format(p.hora) }}h</strong>
+                    <span class="small-muted ms-1">estimado {{ p.valor_previsto }}</span>
+                  </div>
+                  <span class="pill-risk
+                    {% if p.risco == 'alto' %}pill-risk-alto
+                    {% elif p.risco == 'médio' %}pill-risk-medio
+                    {% else %}pill-risk-baixo
+                    {% endif %}">
+                    {{ p.risco }}
+                  </span>
+                </div>
+                {% endfor %}
+              {% else %}
+                <div class="small-muted">Sem projeções calculadas.</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 
-</div> <!-- wrapper -->
+    <!-- HORÁRIOS / LOGRADOUROS / MAPA -->
+    <div class="row g-3 mb-3">
+      <!-- Horários críticos -->
+      <div class="col-lg-3">
+        <div class="card-shell h-100">
+          <div class="card-inner h-100 d-flex flex-column">
+            <div class="section-title mb-1">Horários de maior pressão</div>
+            <div class="flex-grow-1">
+              {% if top_horarios %}
+                {% for h in top_horarios %}
+                <div class="list-row list-row-clickable d-flex justify-content-between align-items-center"
+                     data-hour="{{ h.hora }}">
+                  <span>{{ "%02d"|format(h.hora) }}h</span>
+                  <span class="pill-risk
+                    {% if h.risco == 'alto' %}pill-risk-alto
+                    {% elif h.risco == 'medio' %}pill-risk-medio
+                    {% else %}pill-risk-baixo
+                    {% endif %}">
+                    {{ h.risco|capitalize }}
+                  </span>
+                </div>
+                {% endfor %}
+              {% else %}
+                <div class="small-muted">Sem dados suficientes.</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
 
-<!-- SCRIPTS DE INTERATIVIDADE -->
-<script>
-  const projecoes24h   = {{ projecoes_24h   | tojson | safe }};
-  const topLogradouros = {{ top_logradouros | tojson | safe }};
+      <!-- Logradouros -->
+      <div class="col-lg-4">
+        <div class="card-shell h-100">
+          <div class="card-inner h-100 d-flex flex-column">
+            <div class="section-title mb-1">Logradouros com maior incidência</div>
+            <div class="flex-grow-1">
+              {% if top_logradouros %}
+                {% for l in top_logradouros %}
+                <div class="list-row list-row-clickable d-flex justify-content-between align-items-center"
+                     data-logradouro="{{ l.logradouro | upper }}">
+                  <div>{{ l.logradouro }}</div>
+                  <strong>{{ l.total }}</strong>
+                </div>
+                {% endfor %}
+              {% else %}
+                <div class="small-muted">Sem dados.</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
 
-  // ---------- GRÁFICO CHART.JS ----------
-  let forecastChart = null;
-  let fullLabels = [];
-  let fullData   = [];
+      <!-- Mapa -->
+      <div class="col-lg-5">
+        <div class="card-shell h-100">
+          <div class="card-inner h-100 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="section-title mb-0">Mapa tático</span>
+              <span class="badge-soft">Logradouros agregados</span>
+            </div>
+            <div id="map" class="mt-1 flex-grow-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  function buildFullSeries() {
-    fullLabels = projecoes24h.map(p => `${String(p.hora).padStart(2,'0')}h`);
-    fullData   = projecoes24h.map(p => parseFloat(p.valor_previsto));
-  }
+    <!-- ALERTAS -->
+    <div class="row g-3">
+      <div class="col-12">
+        <div class="card-shell">
+          <div class="card-inner">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="section-title">Alertas automáticos</span>
+              <span class="badge-soft">Desvios relevantes</span>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              {% if alertas %}
+                {% for a in alertas %}
+                <div class="chip-critico">
+                  <strong>{{ a.titulo }}</strong>
+                  <span class="small-muted ms-1">{{ a.descricao }}</span>
+                </div>
+                {% endfor %}
+              {% else %}
+                <span class="small-muted">Nenhum alerta crítico no momento.</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  function filterByRange(range) {
-    if (!forecastChart) return;
+  </div> <!-- wrapper -->
 
-    let indices = [];
-    if (range === 'all') {
-      indices = fullLabels.map((_, i) => i);
-    } else if (range === 'madrugada') {
-      indices = projecoes24h.map((p, i) => (p.hora >=0 && p.hora <=5 ? i : -1)).filter(i => i>=0);
-    } else if (range === 'manha') {
-      indices = projecoes24h.map((p, i) => (p.hora >=6 && p.hora <=11 ? i : -1)).filter(i => i>=0);
-    } else if (range === 'tarde') {
-      indices = projecoes24h.map((p, i) => (p.hora >=12 && p.hora <=17 ? i : -1)).filter(i => i>=0);
-    } else if (range === 'noite') {
-      indices = projecoes24h.map((p, i) => (p.hora >=18 && p.hora <=23 ? i : -1)).filter(i => i>=0);
+  <!-- SCRIPTS DE INTERATIVIDADE -->
+  <script>
+    const projecoes24h   = {{ projecoes_24h   | tojson | safe }};
+    const topLogradouros = {{ top_logradouros | tojson | safe }};
+
+    // ---------- GRÁFICO CHART.JS ----------
+    let forecastChart = null;
+    let fullLabels = [];
+    let fullData   = [];
+
+    function buildFullSeries() {
+      fullLabels = projecoes24h.map(p => `${String(p.hora).padStart(2,'0')}h`);
+      fullData   = projecoes24h.map(p => parseFloat(p.valor_previsto));
     }
 
-    const newLabels = indices.map(i => fullLabels[i]);
-    const newData   = indices.map(i => fullData[i]);
+    function filterByRange(range) {
+      if (!forecastChart) return;
 
-    forecastChart.data.labels = newLabels;
-    forecastChart.data.datasets[0].data = newData;
-    forecastChart.update();
-  }
+      let indices = [];
+      if (range === 'all') {
+        indices = fullLabels.map((_, i) => i);
+      } else if (range === 'madrugada') {
+        indices = projecoes24h.map((p, i) => (p.hora >=0 && p.hora <=5 ? i : -1)).filter(i => i>=0);
+      } else if (range === 'manha') {
+        indices = projecoes24h.map((p, i) => (p.hora >=6 && p.hora <=11 ? i : -1)).filter(i => i>=0);
+      } else if (range === 'tarde') {
+        indices = projecoes24h.map((p, i) => (p.hora >=12 && p.hora <=17 ? i : -1)).filter(i => i>=0);
+      } else if (range === 'noite') {
+        indices = projecoes24h.map((p, i) => (p.hora >=18 && p.hora <=23 ? i : -1)).filter(i => i>=0);
+      }
 
-  (function initChart(){
-    const ctx = document.getElementById('forecastChart');
-    if (!ctx || !projecoes24h || projecoes24h.length === 0) return;
+      const newLabels = indices.map(i => fullLabels[i]);
+      const newData   = indices.map(i => fullData[i]);
 
-    buildFullSeries();
+      forecastChart.data.labels = newLabels;
+      forecastChart.data.datasets[0].data = newData;
+      forecastChart.update();
+    }
 
-    forecastChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: fullLabels,
-        datasets: [{
-          label: 'Ocorrências estimadas',
-          data: fullData,
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: function(ctx) {
-                return `Estimado: ${ctx.parsed.y.toFixed(1)} ocorrências`;
+    (function initChart(){
+      const ctx = document.getElementById('forecastChart');
+      if (!ctx || !projecoes24h || projecoes24h.length === 0) return;
+
+      buildFullSeries();
+
+      forecastChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: fullLabels,
+          datasets: [{
+            label: 'Ocorrências estimadas',
+            data: fullData,
+            backgroundColor: '#60a5fa',
+            borderColor: '#2563eb',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  return `Estimado: ${ctx.parsed.y.toFixed(1)} ocorrências`;
+                }
               }
             }
-          }
-        },
-        scales: {
-          x: {
-            ticks: { color: '#9ca3af', font: { size: 10 } },
-            grid: { display: false }
           },
-          y: {
-            ticks: { color: '#9ca3af', font: { size: 10 } },
-            grid: { color: 'rgba(55,65,81,0.5)' }
+          scales: {
+            x: {
+              ticks: { color: '#6b7280', font: { size: 10 } },
+              grid: { display: false }
+            },
+            y: {
+              ticks: { color: '#6b7280', font: { size: 10 } },
+              grid: { color: '#e5e7eb' }
+            }
           }
         }
+      });
+
+      document.querySelectorAll('.filter-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          filterByRange(btn.getAttribute('data-range'));
+        });
+      });
+    })();
+
+    // ---------- INTERAÇÃO: clique em horário crítico / timeline ----------
+    (function bindHourClicks(){
+      const rows = document.querySelectorAll('[data-hour]');
+      rows.forEach(row => {
+        row.addEventListener('click', () => {
+          if (!forecastChart) return;
+          const h = parseInt(row.getAttribute('data-hour'));
+          const label = `${String(h).padStart(2,'0')}h`;
+
+          const idx = forecastChart.data.labels.indexOf(label);
+          if (idx >= 0) {
+            forecastChart.setActiveElements([{datasetIndex: 0, index: idx}]);
+            forecastChart.tooltip.setActiveElements(
+              [{datasetIndex: 0, index: idx}], {x:0,y:0}
+            );
+            forecastChart.update();
+          }
+
+          rows.forEach(r => r.classList.remove('table-active'));
+          row.classList.add('table-active');
+        });
+      });
+
+      document.querySelectorAll('[data-hour-timeline]').forEach(div => {
+        div.addEventListener('click', () => {
+          const h = parseInt(div.getAttribute('data-hour-timeline'));
+          const label = `${String(h).padStart(2,'0')}h`;
+          if (!forecastChart) return;
+          const idx = forecastChart.data.labels.indexOf(label);
+          if (idx >= 0) {
+            forecastChart.setActiveElements([{datasetIndex: 0, index: idx}]);
+            forecastChart.tooltip.setActiveElements(
+              [{datasetIndex: 0, index: idx}], {x:0,y:0}
+            );
+            forecastChart.update();
+          }
+        });
+      });
+    })();
+
+    // ---------- MAPA LEAFLET ----------
+    (function initMap() {
+      const mapDiv = document.getElementById('map');
+      if (!mapDiv) return;
+
+      const center = [-20.2735, -40.2860]; // centro aproximado Jardim Camburi
+      const map = L.map('map', {
+        center: center,
+        zoom: 14,
+        zoomControl: false,
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(map);
+
+      const geoLookup = {
+        "AV DANTE MICHELINI (TODAS AS VARIANTES)": [-20.2812, -40.2655],
+        "RUA CARLOS MARTINS": [-20.2750, -40.2910],
+        "S/I": center
+      };
+
+      const markersByLogradouro = {};
+      if (topLogradouros && topLogradouros.length > 0) {
+        const maxTotal = Math.max(...topLogradouros.map(l => l.total || 0));
+
+        topLogradouros.forEach(l => {
+          const nomeRaw = (l.logradouro || "");
+          const nome = nomeRaw.toUpperCase();
+          const val = l.total || 0;
+          const base = geoLookup[nome] || center;
+
+          const intensidade = maxTotal > 0 ? (0.4 + 0.6 * (val / maxTotal)) : 0.4;
+          const radius = 80 + 220 * intensidade;
+
+          const circle = L.circle(base, {
+            radius: radius,
+            color: '#2563eb',
+            weight: 1,
+            fillColor: '#60a5fa',
+            fillOpacity: 0.25 + 0.35 * intensidade
+          }).addTo(map)
+            .bindPopup(`<strong>${nomeRaw}</strong><br>Total: ${val}`);
+
+          markersByLogradouro[nome] = circle;
+        });
       }
-    });
 
-    document.querySelectorAll('.filter-chip').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        filterByRange(btn.getAttribute('data-range'));
+      document.querySelectorAll('[data-logradouro]').forEach(row => {
+        row.addEventListener('click', () => {
+          const nome = row.getAttribute('data-logradouro');
+          const marker = markersByLogradouro[nome];
+          if (marker) {
+            map.flyTo(marker.getLatLng(), 16, { duration: 0.6 });
+            marker.openPopup();
+          }
+        });
       });
-    });
-  })();
-
-  // ---------- INTERAÇÃO: clique em horário crítico / timeline ----------
-  (function bindHourClicks(){
-    const rows = document.querySelectorAll('[data-hour]');
-    rows.forEach(row => {
-      row.addEventListener('click', () => {
-        if (!forecastChart) return;
-        const h = parseInt(row.getAttribute('data-hour'));
-        const label = `${String(h).padStart(2,'0')}h`;
-
-        const idx = forecastChart.data.labels.indexOf(label);
-        if (idx >= 0) {
-          forecastChart.setActiveElements([{datasetIndex: 0, index: idx}]);
-          forecastChart.tooltip.setActiveElements(
-            [{datasetIndex: 0, index: idx}], {x:0,y:0}
-          );
-          forecastChart.update();
-        }
-
-        rows.forEach(r => r.classList.remove('bg-dark'));
-        row.classList.add('bg-dark');
-      });
-    });
-
-    document.querySelectorAll('[data-hour-timeline]').forEach(div => {
-      div.addEventListener('click', () => {
-        const h = parseInt(div.getAttribute('data-hour-timeline'));
-        const label = `${String(h).padStart(2,'0')}h`;
-        if (!forecastChart) return;
-        const idx = forecastChart.data.labels.indexOf(label);
-        if (idx >= 0) {
-          forecastChart.setActiveElements([{datasetIndex: 0, index: idx}]);
-          forecastChart.tooltip.setActiveElements(
-            [{datasetIndex: 0, index: idx}], {x:0,y:0}
-          );
-          forecastChart.update();
-        }
-      });
-    });
-  })();
-
-  // ---------- MAPA LEAFLET ----------
-  (function initMap() {
-    const mapDiv = document.getElementById('map');
-    if (!mapDiv) return;
-
-    const center = [-20.2735, -40.2860]; // centro aproximado Jardim Camburi
-    const map = L.map('map', {
-      center: center,
-      zoom: 14,
-      zoomControl: false,
-    });
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap'
-    }).addTo(map);
-
-    const geoLookup = {
-      "AV DANTE MICHELINI (TODAS AS VARIANTES)": [-20.2812, -40.2655],
-      "RUA CARLOS MARTINS": [-20.2750, -40.2910],
-      "S/I": center
-    };
-
-    const markersByLogradouro = {};
-    if (topLogradouros && topLogradouros.length > 0) {
-      const maxTotal = Math.max(...topLogradouros.map(l => l.total || 0));
-
-      topLogradouros.forEach(l => {
-        const nomeRaw = (l.logradouro || "");
-        const nome = nomeRaw.toUpperCase();
-        const val = l.total || 0;
-        const base = geoLookup[nome] || center;
-
-        const intensidade = maxTotal > 0 ? (0.4 + 0.6 * (val / maxTotal)) : 0.4;
-        const radius = 80 + 220 * intensidade;
-
-        const circle = L.circle(base, {
-          radius: radius,
-          color: '#ef4444',
-          weight: 1,
-          fillOpacity: 0.25 + 0.35 * intensidade
-        }).addTo(map)
-          .bindPopup(`<strong>${nomeRaw}</strong><br>Total: ${val}`);
-
-        markersByLogradouro[nome] = circle;
-      });
-    }
-
-    document.querySelectorAll('[data-logradouro]').forEach(row => {
-      row.addEventListener('click', () => {
-        const nome = row.getAttribute('data-logradouro');
-        const marker = markersByLogradouro[nome];
-        if (marker) {
-          map.flyTo(marker.getLatLng(), 16, { duration: 0.6 });
-          marker.openPopup();
-        }
-      });
-    });
-  })();
-</script>
-
+    })();
+  </script>
 </body>
 </html>
