@@ -92,23 +92,20 @@ def carregar_base_jardim_camburi() -> pd.DataFrame:
     df = df.dropna(subset=[col_data])
     df.rename(columns={col_data: "DataFato"}, inplace=True)
 
-    # Ano e dia da semana
+    # Ano
     df["Ano"] = df["DataFato"].dt.year
 
-    try:
-        # Gera nomes dos dias em inglês e traduz para PT-BR
-        dias_map = {
+    # Dia da semana (sem usar locale do sistema; mapeia manualmente para PT-BR)
+    dias_map = {
         "Monday": "Segunda",
         "Tuesday": "Terça",
         "Wednesday": "Quarta",
         "Thursday": "Quinta",
         "Friday": "Sexta",
         "Saturday": "Sábado",
-        "Sunday": "Domingo"
-        }
-    
-        df["DiaSemana"] = df["DataFato"].dt.day_name().map(dias_map)
-        
+        "Sunday": "Domingo",
+    }
+    df["DiaSemana"] = df["DataFato"].dt.day_name().map(dias_map)
 
     # Coluna de Hora
     col_hora = _find_column(df.columns, ["HORA"])
@@ -398,4 +395,3 @@ def index():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
