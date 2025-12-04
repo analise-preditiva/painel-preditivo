@@ -1,177 +1,233 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <title>Painel Preditivo</title>
-  <meta name="robots" content="noindex, nofollow">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<title>CERCO AI • Painel Preditivo Jardim Camburi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Bootstrap para layout rápido -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <style>
-    body {
-      background: #020617;
-      color: #e5e7eb;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
+<style>
+  body {
+    background: #0b1220;
+    color: #e4e6eb;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
 
-    .painel-header {
-      border-bottom: 1px solid rgba(148, 163, 184, 0.4);
-      padding-bottom: 0.75rem;
-      margin-bottom: 1.5rem;
-    }
+  .card-dark {
+    background: #141b2d;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 1.2rem;
+    box-shadow: 0 0 25px rgba(0,0,0,0.35);
+  }
 
-    .badge-modelo {
-      background: linear-gradient(135deg, #0d6efd, #22c55e);
-      border: none;
-      font-weight: 600;
-    }
+  .kpi-value {
+    font-size: 2rem;
+    font-weight: 700;
+  }
 
-    .kpi-card {
-      background: radial-gradient(circle at top left, #1f2937, #020617);
-      border-radius: 1rem;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
-      height: 100%;
-    }
+  .kpi-label {
+    color: #8f9bb3;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
 
-    .kpi-label {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #9ca3af;
-    }
+  .titulo-secao {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #c7d0e0;
+    margin-bottom: 0.6rem;
+  }
 
-    .kpi-value {
-      font-size: 1.8rem;
-      font-weight: 700;
-    }
+  .badge-risk-high {
+    background: #b91c1c;
+  }
 
-    .pill {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 0.15rem 0.55rem;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      color: #9ca3af;
-    }
+  .badge-risk-med {
+    background: #ca8a04;
+  }
 
-    .card-dark {
-      background: rgba(15, 23, 42, 0.9);
-      border-radius: 1rem;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-    }
+  .badge-risk-low {
+    background: #1d4ed8;
+  }
 
-    .alert-pill-alto {
-      background: rgba(239, 68, 68, 0.15);
-      color: #fecaca;
-      border-radius: 999px;
-      padding: 0.15rem 0.55rem;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-  </style>
+  .tag {
+    padding: 3px 9px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: rgba(255,255,255,0.08);
+  }
+
+  .lista-item {
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .projecao-box {
+    border-left: 4px solid #3b82f6;
+    padding-left: 12px;
+    margin-bottom: 10px;
+  }
+
+</style>
 </head>
+
 <body>
-  <div class="container py-4">
-    <!-- Cabeçalho -->
-    <div class="painel-header d-flex flex-wrap align-items-center justify-content-between gap-3">
-      <div>
-        <h1 class="h4 mb-1">
-          Painel Preditivo <span class="text-primary">CERCO AI</span>
-        </h1>
-        <div class="small text-secondary">
-          Última atualização: {{ dados.ultima_atualizacao }}
-        </div>
+<div class="container py-4">
+
+  <!-- Cabeçalho -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-0">CERCO AI • Painel Preditivo</h2>
+      <small class="text-secondary">Jardim Camburi — atualizado em {{ ultima_atualizacao }}</small>
+    </div>
+    <div>
+      <span class="tag">Modelo N7 • Forecast 24h</span>
+      <span class="tag">Google Drive API</span>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="row g-3 mb-4">
+    {% for k in kpis %}
+    <div class="col-6 col-md-3">
+      <div class="card-dark">
+        <div class="kpi-value">{{ k.valor }}</div>
+        <div class="kpi-label">{{ k.nome }}</div>
       </div>
-      <div class="d-flex align-items-center gap-2">
-        <span class="badge badge-modelo">
-          Modelo N6 • 30 dias
-        </span>
-        <span class="pill">
-          Versão simulada
-        </span>
+    </div>
+    {% endfor %}
+  </div>
+
+
+  <!-- 3 COLUNAS PRINCIPAIS -->
+  <div class="row g-4">
+
+    <!-- HORÁRIOS DE MAIOR RISCO -->
+    <div class="col-lg-4">
+      <div class="card-dark h-100">
+        <div class="titulo-secao">Horários mais críticos</div>
+
+        {% if top_horarios %}
+          {% for h in top_horarios %}
+          <div class="lista-item d-flex justify-content-between">
+            <span>{{ h.hora }}h</span>
+            <span class="badge {% if h.risco=='alto' %}badge-risk-high{% elif h.risco=='medio' %}badge-risk-med{% else %}badge-risk-low{% endif %}">
+              {{ h.risco | capitalize }}
+            </span>
+          </div>
+          {% endfor %}
+        {% else %}
+          <small class="text-secondary">Sem dados suficientes.</small>
+        {% endif %}
       </div>
     </div>
 
-    <!-- KPIs -->
-    <div class="row g-3 mb-4">
-      {% for kpi in dados.kpis %}
-      <div class="col-6 col-md-3">
-        <div class="kpi-card p-3">
-          <div class="kpi-label mb-1">
-            {{ kpi.nome }}
+    <!-- LOGRADOUROS -->
+    <div class="col-lg-4">
+      <div class="card-dark h-100">
+        <div class="titulo-secao">Logradouros com maior incidência</div>
+
+        {% if top_logradouros %}
+          {% for l in top_logradouros %}
+          <div class="lista-item d-flex justify-content-between">
+            <span>{{ l.logradouro }}</span>
+            <strong>{{ l.total }}</strong>
           </div>
-          <div class="kpi-value">
-            {{ kpi.valor }}
-          </div>
-        </div>
+          {% endfor %}
+        {% else %}
+          <small class="text-secondary">Sem dados.</small>
+        {% endif %}
       </div>
-      {% endfor %}
     </div>
 
-    <div class="row g-3">
-      <!-- Slot futuro: mapa / gráfico preditivo -->
-      <div class="col-lg-8">
-        <div class="card-dark p-3 h-100">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h2 class="h6 mb-0">Linha temporal preditiva</h2>
-            <span class="pill">Protótipo</span>
-          </div>
-          <p class="small text-secondary mb-2">
-            Aqui depois entra o gráfico real: projeção de ocorrências por bairro / horário, com base no modelo que
-            vamos ligar no Python.
-          </p>
-          <div class="border border-dashed rounded-4 p-4 text-center text-secondary">
-            <div class="mb-1">Placeholder • Gráfico preditivo</div>
-            <div class="small">Conecta aqui mais tarde com o modelo/Google Sheets.</div>
-          </div>
-        </div>
-      </div>
+    <!-- TENDÊNCIAS -->
+    <div class="col-lg-4">
+      <div class="card-dark h-100">
+        <div class="titulo-secao">Tendências (últimas semanas)</div>
 
-      <!-- Alertas -->
-      <div class="col-lg-4">
-        <div class="card-dark p-3 h-100">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h2 class="h6 mb-0">Alertas de risco</h2>
-            <span class="pill">Últimas 24h</span>
+        {% if tendencias %}
+          {% for t in tendencias %}
+          <div class="lista-item d-flex justify-content-between">
+            <span>{{ t.nome }}</span>
+            <span class="{% if t.movimento=='alta' %}text-danger{% elif t.movimento=='queda' %}text-success{% endif %}">
+              {{ t.movimento | capitalize }} ({{ t.percent }}%)
+            </span>
           </div>
-
-          <div class="mt-2">
-            {% if dados.alertas and dados.alertas|length > 0 %}
-              {% for alerta in dados.alertas %}
-              <div class="mb-3 pb-3 border-bottom border-secondary border-opacity-25">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                  <strong>{{ alerta.titulo }}</strong>
-                  {% if alerta.nivel == "alto" %}
-                    <span class="alert-pill-alto">Alto</span>
-                  {% elif alerta.nivel == "médio" %}
-                    <span class="pill">Médio</span>
-                  {% else %}
-                    <span class="pill">Monitorar</span>
-                  {% endif %}
-                </div>
-                <div class="small text-secondary">
-                  {{ alerta.descricao }}
-                </div>
-              </div>
-              {% endfor %}
-            {% else %}
-              <div class="small text-secondary">
-                Nenhum alerta crítico no momento. Monitoramento em modo padrão.
-              </div>
-            {% endif %}
-          </div>
-        </div>
+          {% endfor %}
+        {% else %}
+          <small class="text-secondary">Nenhuma tendência detectada.</small>
+        {% endif %}
       </div>
     </div>
   </div>
+
+
+  <!-- PROJEÇÃO 24H E SAZONALIDADE -->
+  <div class="row g-4 mt-2">
+
+    <!-- PROJEÇÃO 24H -->
+    <div class="col-lg-6">
+      <div class="card-dark">
+        <div class="titulo-secao">Projeção de Ocorrências — Próximas 24h</div>
+
+        {% if projecoes_24h %}
+          {% for p in projecoes_24h %}
+          <div class="projecao-box">
+            <div><strong>{{ p.hora }}h</strong> — risco {{ p.risco }}</div>
+            <small class="text-secondary">Estimado: {{ p.valor_previsto }}</small>
+          </div>
+          {% endfor %}
+        {% else %}
+          <small class="text-secondary">Sem projeções calculadas.</small>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- SAZONALIDADE / PADRÕES -->
+    <div class="col-lg-6">
+      <div class="card-dark">
+        <div class="titulo-secao">Sazonalidade & Padrões</div>
+
+        {% if sazonalidade %}
+          {% for s in sazonalidade %}
+          <div class="lista-item">
+            <strong>{{ s.padrao }}</strong><br>
+            <small class="text-secondary">{{ s.descricao }}</small>
+          </div>
+          {% endfor %}
+        {% else %}
+          <small class="text-secondary">Nenhum padrão detectado.</small>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ALERTAS AUTOMÁTICOS -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card-dark">
+        <div class="titulo-secao">Alertas Inteligentes</div>
+
+        {% if alertas %}
+          {% for a in alertas %}
+          <div class="lista-item">
+            <strong>{{ a.titulo }}</strong>
+            <div class="text-secondary small">{{ a.descricao }}</div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <small class="text-secondary">Nenhum alerta crítico no momento.</small>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
 </body>
 </html>
-
