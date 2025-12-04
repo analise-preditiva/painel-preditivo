@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ titulo }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>{{ titulo }}</h1>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Status do sistema</h2>
+      <p>{{ mensagem }}</p>
+      <p class="ok">/health também deve responder com {"status": "ok"}.</p>
+    </section>
+
+    <section class="card">
+      <h2>Próximos passos</h2>
+      <ol>
+        <li>Ligar esse painel à planilha do Google Sheets.</li>
+        <li>Rodar o modelo preditivo no back-end.</li>
+        <li>Mostrar previsões e insights aqui na tela.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer>
+    <small>Painel Preditivo – Flask + Render</small>
+  </footer>
+</body>
+</html>
