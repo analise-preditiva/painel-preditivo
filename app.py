@@ -6,8 +6,19 @@ from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
 from flask import Flask, render_template
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
+
+# -------------------------------------------------------------------
+# Imports opcionais do Google (para evitar 502 se não estiver instalado)
+# -------------------------------------------------------------------
+HAS_DRIVE = True
+DRIVE_IMPORT_ERROR = None
+
+try:
+    from google.oauth2 import service_account
+    from googleapiclient.discovery import build as g_build
+except Exception as e:
+    HAS_DRIVE = False
+    DRIVE_IMPORT_ERROR = e
 
 app = Flask(__name__)
 
@@ -26,13 +37,18 @@ FILE_IDS = {
 # Google Drive
 # -------------------------------------------------------------------
 def build_drive_service():
+    if not HAS_DRIVE:
+        raise RuntimeError(
+            f"Integração com Google Drive indisponível (bibliotecas não instaladas: {DRIVE_IMPORT_ERROR})"
+        )
+
     key_json = os.environ.get("GOOGLE_DRIVE_KEY")
     if not key_json:
         raise RuntimeError("Variável de ambiente GOOGLE_DRIVE_KEY não configurada.")
 
     info = json.loads(key_json)
     creds = service_account.Credentials.from_service_account_info(info, scopes=SCOPES)
-    service = build("drive", "v3", credentials=creds)
+    service = g_build("drive", "v3", credentials=creds)
     return service
 
 
@@ -58,7 +74,14 @@ def _find_col(df: pd.DataFrame, keywords):
 # Carregamento + normalização da base de Jardim Camburi
 # -------------------------------------------------------------------
 def carregar_base_jardim_camburi() -> pd.DataFrame:
+    if not HAS_DRIVE:
+        raise RuntimeError(
+            "Bibliotecas do Google não estão instaladas neste ambiente. "
+            "Instale 'google-api-python-client' e 'google-auth' ou configure o requirements.txt."
+        )
+
     service = build_drive_service()
+
     df_data = read_excel_from_drive(service, FILE_IDS["data_fato"])
     df_hora = read_excel_from_drive(service, FILE_IDS["hora_fato"])
     df_log = read_excel_from_drive(service, FILE_IDS["log_fato"])
@@ -99,7 +122,7 @@ def carregar_base_jardim_camburi() -> pd.DataFrame:
     else:
         df["data"] = pd.NaT
 
-    # HORA (aceita 0–23, "13:00", 1300, etc)
+    # HORA
     if col_hora:
         hora_raw = df[col_hora].astype(str).str.extract(r"(\d{1,2})")[0]
         df["hora"] = pd.to_numeric(hora_raw, errors="coerce").astype("Int64")
@@ -166,7 +189,7 @@ def calcular_insights(df: pd.DataFrame):
         logradouros_risco = pd.Series(dtype=int)
 
     n_log_risco = len(logradouros_risco)
-    precisao = "91%"  # placeholder: pode ser refinado depois
+    precisao = "91%"  # placeholder
 
     kpis = [
         {"nome": "Registros nas últimas 24h", "valor": registros_24h},
@@ -240,11 +263,11 @@ def calcular_insights(df: pd.DataFrame):
                     "crime": crime,
                     "hora": int(hora),
                     "bairro": bairro,
-                    "valor": float(qt),  # pode virar índice normalizado depois
+                    "valor": float(qt),
                 }
             )
 
-    # Alertas simples (pode ser evoluído)
+    # Alertas simples
     alertas = []
     if projecoes_24h:
         pico = max(projecoes_24h, key=lambda x: x["valor_previsto"])
@@ -277,7 +300,7 @@ def index():
         df = carregar_base_jardim_camburi()
         insights = calcular_insights(df)
     except Exception as exc:
-        # Se der erro (Drive, colunas, etc.), não derruba o painel:
+        # Fallback: não derruba o painel, mostra erro em um alerta
         insights = {
             "kpis": [
                 {"nome": "Registros nas últimas 24h", "valor": 0},
@@ -307,5 +330,4 @@ def index():
 
 
 if __name__ == "__main__":
-    # Em produção o Render usa gunicorn; isso é só para rodar local.
     app.run(host="0.0.0.0", port=5000, debug=True)
