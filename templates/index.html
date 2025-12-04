@@ -25,7 +25,7 @@
     :root{
       --bg: #f3f4f6;
       --bg-card: #ffffff;
-      --accent: #005ca9;      /* azul GM */
+      --accent: #005ca9;      /* azul institucional */
       --accent-soft: #0ea5e9;
       --accent-green: #16a34a;
       --text-main: #111827;
@@ -226,6 +226,9 @@
     .slot-current {
       border: 2px solid var(--accent);
     }
+    .slot-range {
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.4) inset;
+    }
 
     .tv-mode .top-bar {
       display: none;
@@ -269,7 +272,7 @@
 
   <div class="wrapper">
 
-    <!-- HEADER LOCAL -->
+    <!-- HEADER LOCAL + CONTROLES GERAIS -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
       <div>
         <h5 class="mb-1 fw-semibold">Visão geral da predição</h5>
@@ -285,14 +288,14 @@
       </div>
     </div>
 
-    <!-- FILTROS TIPO CRIME (visual por enquanto) -->
+    <!-- FILTROS TIPO CRIME (visual / corporativo) -->
     <div class="d-flex flex-wrap gap-2 mb-3 no-print">
       <span class="badge-chip crime-filter active" data-crime="todos">Todos os crimes</span>
       <span class="badge-chip crime-filter" data-crime="patrimonio">Crimes contra o patrimônio</span>
       <span class="badge-chip crime-filter" data-crime="pessoa">Crimes contra a pessoa</span>
       <span class="badge-chip crime-filter" data-crime="drogas">Tráfico / drogas</span>
       <span class="badge-soft">
-        ℹ️ Filtros preparam o painel para futuras segmentações por tipo de ocorrência.
+        ℹ️ Segmentação por tipo de ocorrência — preparada para futuras integrações.
       </span>
     </div>
 
@@ -316,7 +319,7 @@
                   ℹ️
                 </span>
               {% elif loop.index == 3 %}
-                <span class="badge-soft" title="Número de logradouros com nível de risco elevado na janela atual.">
+                <span class="badge-soft" title="Número de logradouros com risco elevado na janela atual.">
                   ℹ️
                 </span>
               {% elif loop.index == 4 %}
@@ -420,7 +423,7 @@
       </div>
     </div>
 
-    <!-- FORECAST + RANKING -->
+    <!-- FORECAST + RANKING + CONTROLES DE HORA -->
     <div class="row g-3 mb-3">
       <!-- Forecast -->
       <div class="col-lg-7">
@@ -431,12 +434,29 @@
               <span class="badge-soft" title="Média histórica ponderada para cada hora do dia.">ℹ️</span>
             </div>
 
-            <div class="mb-2 no-print">
-              <button class="filter-chip active" data-range="all">24h</button>
-              <button class="filter-chip" data-range="madrugada">00–05h</button>
-              <button class="filter-chip" data-range="manha">06–11h</button>
-              <button class="filter-chip" data-range="tarde">12–17h</button>
-              <button class="filter-chip" data-range="noite">18–23h</button>
+            <!-- Controles de hora interativos -->
+            <div class="row align-items-center mb-2 no-print">
+              <div class="col-12 col-md-7">
+                <label for="hourSlider" class="small-muted d-block mb-1">
+                  Linha do tempo preditiva (selecione a hora ou clique em Play)
+                </label>
+                <input type="range" id="hourSlider" min="0" max="23" value="0" class="form-range">
+                <div class="small-muted">
+                  Hora selecionada: <strong id="hourLabel">00h</strong>
+                </div>
+              </div>
+              <div class="col-12 col-md-5 d-flex align-items-center justify-content-md-end mt-2 mt-md-0 gap-2">
+                <button id="btnPlayTimeline" class="btn btn-sm btn-outline-primary">
+                  ▶ Play
+                </button>
+                <div>
+                  <button class="filter-chip active" data-range="all">24h</button>
+                  <button class="filter-chip" data-range="madrugada">00–05h</button>
+                  <button class="filter-chip" data-range="manha">06–11h</button>
+                  <button class="filter-chip" data-range="tarde">12–17h</button>
+                  <button class="filter-chip" data-range="noite">18–23h</button>
+                </div>
+              </div>
             </div>
 
             <div class="flex-grow-1 d-flex">
@@ -459,7 +479,7 @@
           <div class="card-inner h-100 d-flex flex-column">
             <div class="d-flex justify-content-between align-items-center mb-1">
               <span class="section-title">Próximos riscos previstos</span>
-              <span class="badge-soft">Ranking</span>
+              <span class="badge-soft">Ranking por hora</span>
             </div>
             <div class="flex-grow-1" style="max-height: 230px; overflow-y:auto;">
               {% if projecoes_24h %}
@@ -493,9 +513,9 @@
       <div class="col-12">
         <div class="card-shell">
           <div class="card-inner">
-            <div class="d-flex justify-content-between align-items-center mb-1">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-1 gap-2">
               <span class="section-title">Linha do dia — risco por horário</span>
-              <span class="badge-soft">Cinza: neutro • Cores: janelas críticas</span>
+              <span class="badge-soft">Cinza: neutro • Cores: janelas críticas • Contorno: hora atual</span>
             </div>
             <div id="dayTimeline" class="day-timeline"></div>
           </div>
@@ -503,8 +523,39 @@
       </div>
     </div>
 
-    <!-- HORÁRIOS / LOGRADOUROS / MAPA + RECOMENDAÇÕES -->
+    <!-- SIMULADOR DE TURNO + HORÁRIOS / LOGRADOUROS / MAPA -->
     <div class="row g-3 mb-3">
+      <!-- Simulador de turno -->
+      <div class="col-lg-3">
+        <div class="card-shell h-100">
+          <div class="card-inner h-100 d-flex flex-column">
+            <div class="section-title mb-1">Simulador de turno</div>
+            <div class="small-muted mb-2">
+              Ajuste o horário do turno e veja a concentração de risco naquele intervalo.
+            </div>
+            <div class="mb-2">
+              <label class="small-muted d-block mb-1" for="turnoInicio">Início</label>
+              <select id="turnoInicio" class="form-select form-select-sm">
+                {% for h in range(0,24) %}
+                <option value="{{ h }}">{{ "%02d"|format(h) }}h</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="small-muted d-block mb-1" for="turnoFim">Fim</label>
+              <select id="turnoFim" class="form-select form-select-sm">
+                {% for h in range(0,24) %}
+                <option value="{{ h }}" {% if h == 12 %}selected{% endif %}>{{ "%02d"|format(h) }}h</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="small-muted" id="turnoResumo">
+              Selecione um intervalo para ver o resumo do risco.
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Horários críticos -->
       <div class="col-lg-3">
         <div class="card-shell h-100">
@@ -534,7 +585,7 @@
       </div>
 
       <!-- Logradouros -->
-      <div class="col-lg-4">
+      <div class="col-lg-3">
         <div class="card-shell h-100">
           <div class="card-inner h-100 d-flex flex-column">
             <div class="section-title mb-1">Logradouros com maior incidência</div>
@@ -556,7 +607,7 @@
       </div>
 
       <!-- Mapa -->
-      <div class="col-lg-5">
+      <div class="col-lg-3">
         <div class="card-shell h-100">
           <div class="card-inner h-100 d-flex flex-column">
             <div class="d-flex justify-content-between align-items-center mb-1">
@@ -569,7 +620,7 @@
       </div>
     </div>
 
-    <!-- RECOMENDAÇÕES + ALERTAS -->
+    <!-- RECOMENDAÇÕES DINÂMICAS + ALERTAS (inclui cognitivos) -->
     <div class="row g-3 mb-3">
       <!-- Recomendações para o turno -->
       <div class="col-lg-6">
@@ -577,9 +628,9 @@
           <div class="card-inner">
             <div class="d-flex justify-content-between align-items-center mb-1">
               <span class="section-title">Recomendações para o turno atual</span>
-              <span class="badge-soft">Síntese operacional</span>
+              <span class="badge-soft">Motor tático</span>
             </div>
-            <ul class="small-muted mb-0">
+            <ul class="small-muted mb-0" id="recomendacoesTurno">
               {% if top_logradouros and projecoes_24h and top_horarios %}
                 {% set log_rec = top_logradouros[0] %}
                 {% set h_rec = top_horarios[0] %}
@@ -600,9 +651,9 @@
           <div class="card-inner">
             <div class="d-flex justify-content-between align-items-center mb-1">
               <span class="section-title">Alertas automáticos</span>
-              <span class="badge-soft">Desvios relevantes</span>
+              <span class="badge-soft">Desvios relevantes / cognitivos</span>
             </div>
-            <div class="d-flex flex-wrap gap-2">
+            <div class="d-flex flex-wrap gap-2" id="alertasContainer">
               {% if alertas %}
                 {% for a in alertas %}
                 <div class="chip-critico">
@@ -610,10 +661,14 @@
                   <span class="small-muted ms-1">{{ a.descricao }}</span>
                 </div>
                 {% endfor %}
-              {% else %}
-                <span class="small-muted">Nenhum alerta crítico no momento.</span>
               {% endif %}
+              <!-- alertas cognitivos calculados no front serão adicionados aqui -->
             </div>
+            {% if not alertas %}
+            <div class="small-muted mt-1" id="alertasFallback">
+              Nenhum alerta crítico cadastrado. Alertas cognitivos serão exibidos conforme o padrão das projeções.
+            </div>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -627,21 +682,24 @@
     const topLogradouros = {{ top_logradouros | tojson | safe }};
 
     // ---------- MODO TELA CHEIA ----------
-    document.getElementById('btnTvMode').addEventListener('click', () => {
-      document.body.classList.toggle('tv-mode');
+    (function(){
       const btn = document.getElementById('btnTvMode');
-      if (document.body.classList.contains('tv-mode')) {
-        btn.textContent = 'Sair do modo tela cheia';
-        if (document.documentElement.requestFullscreen) {
-          document.documentElement.requestFullscreen().catch(()=>{});
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        document.body.classList.toggle('tv-mode');
+        if (document.body.classList.contains('tv-mode')) {
+          btn.textContent = 'Sair do modo tela cheia';
+          if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(()=>{});
+          }
+        } else {
+          btn.textContent = 'Modo tela cheia';
+          if (document.exitFullscreen) {
+            document.exitFullscreen().catch(()=>{});
+          }
         }
-      } else {
-        btn.textContent = 'Modo tela cheia';
-        if (document.exitFullscreen) {
-          document.exitFullscreen().catch(()=>{});
-        }
-      }
-    });
+      });
+    })();
 
     // ---------- FILTRO VISUAL TIPO CRIME ----------
     document.querySelectorAll('.crime-filter').forEach(chip => {
@@ -740,6 +798,7 @@
     })();
 
     // ---------- TIMELINE DO DIA ----------
+    const timelineSlots = [];
     (function buildDayTimeline() {
       const container = document.getElementById('dayTimeline');
       if (!container) return;
@@ -773,10 +832,158 @@
 
         div.textContent = String(h).padStart(2,'0') + 'h';
         container.appendChild(div);
+        timelineSlots.push(div);
       }
     })();
 
-    // ---------- INTERAÇÃO: clique em horário crítico / timeline ----------
+    // ---------- SLIDER / PLAY DA HORA ----------
+    (function initHourControls() {
+      const slider = document.getElementById('hourSlider');
+      const label  = document.getElementById('hourLabel');
+      const btnPlay = document.getElementById('btnPlayTimeline');
+      if (!slider || !label || !btnPlay) return;
+
+      let playInterval = null;
+      function updateFromSlider() {
+        const h = parseInt(slider.value);
+        label.textContent = String(h).padStart(2,'0') + 'h';
+
+        // destaca a barra correspondente no gráfico
+        if (forecastChart) {
+          const targetLabel = label.textContent;
+          const idx = forecastChart.data.labels.indexOf(targetLabel);
+          if (idx >= 0) {
+            forecastChart.setActiveElements([{datasetIndex: 0, index: idx}]);
+            forecastChart.tooltip.setActiveElements(
+              [{datasetIndex: 0, index: idx}], {x:0,y:0}
+            );
+            forecastChart.update();
+          }
+        }
+      }
+
+      slider.addEventListener('input', updateFromSlider);
+
+      btnPlay.addEventListener('click', () => {
+        if (playInterval) {
+          clearInterval(playInterval);
+          playInterval = null;
+          btnPlay.textContent = '▶ Play';
+          return;
+        }
+        btnPlay.textContent = '⏸ Pausar';
+        playInterval = setInterval(() => {
+          let v = parseInt(slider.value);
+          v = (v + 1) % 24;
+          slider.value = v;
+          updateFromSlider();
+        }, 1000);
+      });
+
+      updateFromSlider();
+    })();
+
+    // ---------- SIMULADOR DE TURNO / MOTOR DE RECOMENDAÇÃO ----------
+    (function initTurnoSimulator() {
+      const selInicio = document.getElementById('turnoInicio');
+      const selFim    = document.getElementById('turnoFim');
+      const resumo    = document.getElementById('turnoResumo');
+      const recList   = document.getElementById('recomendacoesTurno');
+
+      if (!selInicio || !selFim || !resumo || !recList || !projecoes24h) return;
+
+      function horaDentroTurno(h, inicio, fim) {
+        if (inicio === fim) return true; // turno 24h
+        if (inicio < fim) {
+          return h >= inicio && h < fim;
+        } else {
+          // vira a meia-noite
+          return h >= inicio || h < fim;
+        }
+      }
+
+      function aplicarTurno() {
+        const inicio = parseInt(selInicio.value);
+        const fim    = parseInt(selFim.value);
+
+        // destque na timeline
+        timelineSlots.forEach((slot, idx) => {
+          slot.classList.remove('slot-range');
+          if (horaDentroTurno(idx, inicio, fim)) {
+            slot.classList.add('slot-range');
+          }
+        });
+
+        // foco no gráfico: filtra para o turno
+        if (forecastChart) {
+          const indices = projecoes24h
+            .map((p, i) => (horaDentroTurno(p.hora, inicio, fim) ? i : -1))
+            .filter(i => i >= 0);
+
+          const newLabels = indices.map(i => fullLabels[i]);
+          const newData   = indices.map(i => fullData[i]);
+          forecastChart.data.labels = newLabels;
+          forecastChart.data.datasets[0].data = newData;
+          forecastChart.update();
+        }
+
+        // resumo de risco do turno
+        const horasTurno = projecoes24h.filter(p => horaDentroTurno(p.hora, inicio, fim));
+        if (horasTurno.length === 0) {
+          resumo.textContent = 'Não há dados de projeção para este intervalo.';
+          return;
+        }
+        const maxHour = horasTurno.reduce((a, b) => (a.valor_previsto >= b.valor_previsto ? a : b));
+        const soma = horasTurno.reduce((acc, p) => acc + p.valor_previsto, 0);
+        const media = soma / horasTurno.length;
+
+        resumo.innerHTML = `
+          Turno <strong>${String(inicio).padStart(2,'0')}h</strong>–<strong>${String(fim).padStart(2,'0')}h</strong>:
+          pico previsto em <strong>${String(maxHour.hora).padStart(2,'0')}h</strong>,
+          média de <strong>${media.toFixed(1)}</strong> ocorrências por hora.
+        `;
+
+        // motor de recomendação: recompõe a lista
+        recList.innerHTML = '';
+
+        // logradouro mais sensível (se houver)
+        let logradouroForte = null;
+        if (topLogradouros && topLogradouros.length > 0) {
+          logradouroForte = topLogradouros[0].logradouro;
+        }
+
+        const li1 = document.createElement('li');
+        li1.innerHTML = `
+          Concentrar esforços entre <strong>${String(inicio).padStart(2,'0')}h</strong> e
+          <strong>${String(fim).padStart(2,'0')}h</strong>, com atenção especial a
+          <strong>${String(maxHour.hora).padStart(2,'0')}h</strong>, que apresenta o maior valor previsto.
+        `;
+        recList.appendChild(li1);
+
+        if (logradouroForte) {
+          const li2 = document.createElement('li');
+          li2.innerHTML = `
+            Sugerido manter PB ou rondas dirigidas em <strong>${logradouroForte}</strong>
+            durante o turno selecionado, alinhando previsão com histórico.
+          `;
+          recList.appendChild(li2);
+        }
+
+        const li3 = document.createElement('li');
+        li3.innerHTML = `
+          Avaliar reforço de efetivo caso o nível de risco se mantenha em patamar alto em mais
+          de <strong>50%</strong> das horas do turno.
+        `;
+        recList.appendChild(li3);
+      }
+
+      selInicio.addEventListener('change', aplicarTurno);
+      selFim.addEventListener('change', aplicarTurno);
+
+      aplicarTurno(); // aplica configuração inicial
+    })();
+
+    // ---------- INTERAÇÃO: clique em horário crítico / timeline ranking ----------
     (function bindHourClicks(){
       const rows = document.querySelectorAll('[data-hour]');
       rows.forEach(row => {
@@ -875,6 +1082,40 @@
           }
         });
       });
+    })();
+
+    // ---------- ALERTAS COGNITIVOS (baseado nas projeções) ----------
+    (function buildCognitiveAlerts() {
+      const container = document.getElementById('alertasContainer');
+      if (!container || !projecoes24h || projecoes24h.length === 0) return;
+
+      const fallback = document.getElementById('alertasFallback');
+      if (fallback) fallback.remove();
+
+      const valores = projecoes24h.map(p => p.valor_previsto);
+      const media = valores.reduce((a,b) => a + b, 0) / valores.length;
+      const limAlto = media * 1.5;
+
+      projecoes24h.forEach(p => {
+        if (p.valor_previsto >= limAlto || p.risco === 'alto') {
+          const div = document.createElement('div');
+          div.classList.add('chip-critico');
+          div.innerHTML = `
+            <strong>Janela crítica ${String(p.hora).padStart(2,'0')}h</strong>
+            <span class="small-muted ms-1">
+              Projeção acima do padrão médio (${p.valor_previsto.toFixed(1)} vs média ${media.toFixed(1)}).
+            </span>
+          `;
+          container.appendChild(div);
+        }
+      });
+
+      if (!container.children.length) {
+        const span = document.createElement('span');
+        span.classList.add('small-muted');
+        span.textContent = 'Nenhum alerta cognitivo relevante no padrão atual das projeções.';
+        container.appendChild(span);
+      }
     })();
   </script>
 </body>
