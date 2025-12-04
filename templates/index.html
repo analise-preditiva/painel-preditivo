@@ -5,7 +5,7 @@
   <title>Painel Preditivo — Jardim Camburi</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Bootstrap -->
+  <!-- Bootstrap CSS -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     rel="stylesheet"
@@ -206,16 +206,63 @@
       color: #1d4ed8;
     }
 
+    /* Timeline do dia */
+    .day-timeline {
+      display: grid;
+      grid-template-columns: repeat(24, minmax(0, 1fr));
+      gap: 2px;
+      font-size: 0.65rem;
+    }
+    .timeline-slot {
+      text-align: center;
+      padding: 0.15rem 0;
+      border-radius: 4px;
+      background: #e5e7eb;
+      color: #374151;
+    }
+    .slot-alto { background: #fecaca; color: #7f1d1d; }
+    .slot-medio { background: #fef3c7; color: #78350f; }
+    .slot-baixo { background: #dcfce7; color: #166534; }
+    .slot-current {
+      border: 2px solid var(--accent);
+    }
+
+    .tv-mode .top-bar {
+      display: none;
+    }
+    .tv-mode .wrapper {
+      max-width: 100%;
+      padding-top: 0.5rem;
+    }
+    .tv-mode .kpi-value {
+      font-size: 2.4rem;
+    }
+
     @media (max-width: 991.98px) {
       .wrapper { padding-inline: 0.75rem; }
       .kpi-value { font-size: 1.6rem; }
+      .day-timeline { font-size: 0.55rem; }
+    }
+
+    @media print {
+      .top-bar,
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background: #ffffff;
+      }
+      .wrapper {
+        max-width: 100%;
+        padding: 0;
+      }
     }
   </style>
 </head>
 
 <body>
   <!-- barra superior estilo sistema -->
-  <div class="top-bar">
+  <div class="top-bar no-print">
     <div class="top-bar-title">Guarda Municipal — Painel Preditivo Jardim Camburi</div>
     <div class="small-muted text-white">Atualizado em {{ ultima_atualizacao }}</div>
   </div>
@@ -230,10 +277,23 @@
           Base histórica desde 2020 • Atualização automática (Excel / Google Drive)
         </div>
       </div>
-      <div class="d-flex flex-wrap gap-2">
+      <div class="d-flex flex-wrap gap-2 no-print">
         <span class="badge-chip badge-chip-primary">Forecast 24h</span>
         <span class="badge-chip">Jardim Camburi</span>
+        <button id="btnTvMode" class="btn btn-sm btn-outline-primary">Modo tela cheia</button>
+        <button onclick="window.print()" class="btn btn-sm btn-outline-secondary">Imprimir / Exportar</button>
       </div>
+    </div>
+
+    <!-- FILTROS TIPO CRIME (visual por enquanto) -->
+    <div class="d-flex flex-wrap gap-2 mb-3 no-print">
+      <span class="badge-chip crime-filter active" data-crime="todos">Todos os crimes</span>
+      <span class="badge-chip crime-filter" data-crime="patrimonio">Crimes contra o patrimônio</span>
+      <span class="badge-chip crime-filter" data-crime="pessoa">Crimes contra a pessoa</span>
+      <span class="badge-chip crime-filter" data-crime="drogas">Tráfico / drogas</span>
+      <span class="badge-soft">
+        ℹ️ Filtros preparam o painel para futuras segmentações por tipo de ocorrência.
+      </span>
     </div>
 
     <!-- KPIs -->
@@ -242,8 +302,29 @@
       <div class="col-6 col-lg-3">
         <div class="card-shell h-100">
           <div class="card-inner">
-            <div class="kpi-value">{{ k.valor }}</div>
-            <div class="kpi-label">{{ k.nome }}</div>
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="kpi-value">{{ k.valor }}</div>
+                <div class="kpi-label">{{ k.nome }}</div>
+              </div>
+              {% if loop.index == 1 %}
+                <span class="badge-soft" title="Total de registros em Jardim Camburi nas últimas 24h.">
+                  ℹ️
+                </span>
+              {% elif loop.index == 2 %}
+                <span class="badge-soft" title="Quantidade estimada de eventos nas próximas 24h com base no histórico.">
+                  ℹ️
+                </span>
+              {% elif loop.index == 3 %}
+                <span class="badge-soft" title="Número de logradouros com nível de risco elevado na janela atual.">
+                  ℹ️
+                </span>
+              {% elif loop.index == 4 %}
+                <span class="badge-soft" title="Precisão estimada do modelo com base nos últimos 30 dias.">
+                  ℹ️
+                </span>
+              {% endif %}
+            </div>
           </div>
         </div>
       </div>
@@ -295,10 +376,10 @@
                 <strong>{{ log.logradouro }}</strong>
               </div>
               <div class="small-muted">
-                {{ log.total }} registros acumulados.
+                {{ log.total }} registros acumulados na série histórica.
               </div>
               <div class="mt-2 chip-info">
-                Indicado para PB / rondas dirigidas.
+                Indicado para PB / rondas dirigidas no turno.
               </div>
             {% else %}
               <div class="small-muted">Sem dados de logradouros.</div>
@@ -329,7 +410,7 @@
                 {% endif %}
               </div>
               <div class="chip-info">
-                Melhor janela para operações planejadas.
+                Janela recomendada para operações planejadas e saturação.
               </div>
             {% else %}
               <div class="small-muted">Padrão ainda não definido na série.</div>
@@ -347,10 +428,10 @@
           <div class="card-inner h-100 d-flex flex-column">
             <div class="d-flex justify-content-between align-items-center mb-1">
               <div class="section-title mb-0">Forecast 24h por hora</div>
-              <span class="badge-soft">média histórica</span>
+              <span class="badge-soft" title="Média histórica ponderada para cada hora do dia.">ℹ️</span>
             </div>
 
-            <div class="mb-2">
+            <div class="mb-2 no-print">
               <button class="filter-chip active" data-range="all">24h</button>
               <button class="filter-chip" data-range="madrugada">00–05h</button>
               <button class="filter-chip" data-range="manha">06–11h</button>
@@ -360,6 +441,13 @@
 
             <div class="flex-grow-1 d-flex">
               <canvas id="forecastChart" class="flex-grow-1"></canvas>
+            </div>
+
+            <!-- legenda de risco -->
+            <div class="mt-2 d-flex flex-wrap gap-2 small-muted">
+              <span><span class="pill-risk pill-risk-alto me-1"></span>Alto</span>
+              <span><span class="pill-risk pill-risk-medio me-1"></span>Médio</span>
+              <span><span class="pill-risk pill-risk-baixo me-1"></span>Baixo</span>
             </div>
           </div>
         </div>
@@ -400,7 +488,22 @@
       </div>
     </div>
 
-    <!-- HORÁRIOS / LOGRADOUROS / MAPA -->
+    <!-- TIMELINE DO DIA -->
+    <div class="row g-3 mb-3">
+      <div class="col-12">
+        <div class="card-shell">
+          <div class="card-inner">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="section-title">Linha do dia — risco por horário</span>
+              <span class="badge-soft">Cinza: neutro • Cores: janelas críticas</span>
+            </div>
+            <div id="dayTimeline" class="day-timeline"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HORÁRIOS / LOGRADOUROS / MAPA + RECOMENDAÇÕES -->
     <div class="row g-3 mb-3">
       <!-- Horários críticos -->
       <div class="col-lg-3">
@@ -466,10 +569,34 @@
       </div>
     </div>
 
-    <!-- ALERTAS -->
-    <div class="row g-3">
-      <div class="col-12">
-        <div class="card-shell">
+    <!-- RECOMENDAÇÕES + ALERTAS -->
+    <div class="row g-3 mb-3">
+      <!-- Recomendações para o turno -->
+      <div class="col-lg-6">
+        <div class="card-shell h-100">
+          <div class="card-inner">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="section-title">Recomendações para o turno atual</span>
+              <span class="badge-soft">Síntese operacional</span>
+            </div>
+            <ul class="small-muted mb-0">
+              {% if top_logradouros and projecoes_24h and top_horarios %}
+                {% set log_rec = top_logradouros[0] %}
+                {% set h_rec = top_horarios[0] %}
+                <li>Priorizar presença na <strong>{{ log_rec.logradouro }}</strong> no período em que o risco histórico é mais elevado.</li>
+                <li>Monitorar com atenção o horário de <strong>{{ "%02d"|format(h_rec.hora) }}h</strong>, classificado como risco {{ h_rec.risco }} na série histórica.</li>
+                <li>Utilizar o forecast 24h para programar reforço de viaturas nas janelas em vermelho na linha do dia.</li>
+              {% else %}
+                <li>Recomendações serão exibidas assim que houver dados históricos suficientes.</li>
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alertas -->
+      <div class="col-lg-6">
+        <div class="card-shell h-100">
           <div class="card-inner">
             <div class="d-flex justify-content-between align-items-center mb-1">
               <span class="section-title">Alertas automáticos</span>
@@ -499,12 +626,38 @@
     const projecoes24h   = {{ projecoes_24h   | tojson | safe }};
     const topLogradouros = {{ top_logradouros | tojson | safe }};
 
+    // ---------- MODO TELA CHEIA ----------
+    document.getElementById('btnTvMode').addEventListener('click', () => {
+      document.body.classList.toggle('tv-mode');
+      const btn = document.getElementById('btnTvMode');
+      if (document.body.classList.contains('tv-mode')) {
+        btn.textContent = 'Sair do modo tela cheia';
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(()=>{});
+        }
+      } else {
+        btn.textContent = 'Modo tela cheia';
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(()=>{});
+        }
+      }
+    });
+
+    // ---------- FILTRO VISUAL TIPO CRIME ----------
+    document.querySelectorAll('.crime-filter').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.crime-filter').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+      });
+    });
+
     // ---------- GRÁFICO CHART.JS ----------
     let forecastChart = null;
     let fullLabels = [];
     let fullData   = [];
 
     function buildFullSeries() {
+      if (!projecoes24h) return;
       fullLabels = projecoes24h.map(p => `${String(p.hora).padStart(2,'0')}h`);
       fullData   = projecoes24h.map(p => parseFloat(p.valor_previsto));
     }
@@ -584,6 +737,43 @@
           filterByRange(btn.getAttribute('data-range'));
         });
       });
+    })();
+
+    // ---------- TIMELINE DO DIA ----------
+    (function buildDayTimeline() {
+      const container = document.getElementById('dayTimeline');
+      if (!container) return;
+
+      const riscoPorHora = {};
+      if (projecoes24h) {
+        projecoes24h.forEach(p => {
+          riscoPorHora[p.hora] = p.risco || 'baixo';
+        });
+      }
+
+      const now = new Date();
+      const currentHour = now.getHours();
+
+      for (let h = 0; h < 24; h++) {
+        const div = document.createElement('div');
+        div.classList.add('timeline-slot');
+
+        const risco = riscoPorHora[h];
+        if (risco === 'alto') {
+          div.classList.add('slot-alto');
+        } else if (risco === 'médio' || risco === 'medio') {
+          div.classList.add('slot-medio');
+        } else if (risco === 'baixo') {
+          div.classList.add('slot-baixo');
+        }
+
+        if (h === currentHour) {
+          div.classList.add('slot-current');
+        }
+
+        div.textContent = String(h).padStart(2,'0') + 'h';
+        container.appendChild(div);
+      }
     })();
 
     // ---------- INTERAÇÃO: clique em horário crítico / timeline ----------
