@@ -11,12 +11,10 @@ from googleapiclient.discovery import build
 
 app = Flask(__name__)
 
-# -------------------------------------------------------------------
-# Configuração de acesso ao Google Drive
-# -------------------------------------------------------------------
+# Escopo só leitura do Drive
 SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
 
-# IDs das três planilhas (variáveis de ambiente do Render)
+# IDs das três planilhas (variáveis de ambiente no Render)
 FILE_IDS = {
     "data_fato": os.environ.get("DRIVE_DATA_FATO_ID"),
     "hora_fato": os.environ.get("DRIVE_HORA_FATO_ID"),
@@ -24,22 +22,21 @@ FILE_IDS = {
 }
 
 
+# -------------------------------------------------------------------
+# Google Drive
+# -------------------------------------------------------------------
 def build_drive_service():
-    """Monta o client autenticado do Google Drive usando a service account."""
     key_json = os.environ.get("GOOGLE_DRIVE_KEY")
     if not key_json:
         raise RuntimeError("Variável de ambiente GOOGLE_DRIVE_KEY não configurada.")
 
     info = json.loads(key_json)
-    creds = service_account.Credentials.from_service_account_info(
-        info, scopes=SCOPES
-    )
+    creds = service_account.Credentials.from_service_account_info(info, scopes=SCOPES)
     service = build("drive", "v3", credentials=creds)
     return service
 
 
 def read_excel_from_drive(service, file_id: str) -> pd.DataFrame:
-    """Baixa um Excel do Drive e devolve como DataFrame."""
     if not file_id:
         raise RuntimeError("ID de arquivo do Drive não informado.")
     request = service.files().get_media(fileId=file_id)
@@ -48,325 +45,240 @@ def read_excel_from_drive(service, file_id: str) -> pd.DataFrame:
     return df
 
 
-# -------------------------------------------------------------------
-# Utilitários de detecção de colunas
-# -------------------------------------------------------------------
-def _find_column(columns, keywords):
-    """Procura, na lista de colunas, a primeira que contenha todos os pedaços de keywords."""
-    upper_cols = [c.upper() for c in columns]
-    for col, up in zip(columns, upper_cols):
-        if all(k in up for k in keywords):
+def _find_col(df: pd.DataFrame, keywords):
+    """Acha coluna que contém algum dos termos da lista keywords."""
+    for col in df.columns:
+        name = str(col).lower()
+        if any(k in name for k in keywords):
             return col
     return None
 
 
 # -------------------------------------------------------------------
-# Carregamento e unificação das 3 bases de Jardim Camburi
+# Carregamento + normalização da base de Jardim Camburi
 # -------------------------------------------------------------------
 def carregar_base_jardim_camburi() -> pd.DataFrame:
     service = build_drive_service()
-
     df_data = read_excel_from_drive(service, FILE_IDS["data_fato"])
     df_hora = read_excel_from_drive(service, FILE_IDS["hora_fato"])
     df_log = read_excel_from_drive(service, FILE_IDS["log_fato"])
 
-    # Assumindo que todas têm a coluna "Nº Ocorrência"
+    # chave única
     chave = "Nº Ocorrência"
     if chave not in df_data.columns:
-        raise KeyError(f"Coluna '{chave}' não encontrada em DATA DO FATO.")
-    if chave not in df_hora.columns or chave not in df_log.columns:
-        raise KeyError("Coluna 'Nº Ocorrência' não encontrada em HORA/LOGRADOURO.")
+        poss = [c for c in df_data.columns if "ocorr" in str(c).lower()]
+        if poss:
+            chave = poss[0]
+        else:
+            raise KeyError("Coluna identificadora da ocorrência não encontrada.")
 
-    # Merge base única
+    for df in (df_hora, df_log):
+        if chave not in df.columns:
+            poss = [c for c in df.columns if "ocorr" in str(c).lower()]
+            if poss:
+                df.rename(columns={poss[0]: chave}, inplace=True)
+            else:
+                raise KeyError(
+                    "Coluna identificadora da ocorrência não encontrada em uma das planilhas."
+                )
+
+    # merge das três bases
     df = df_data.merge(df_hora, on=chave, how="left")
     df = df.merge(df_log, on=chave, how="left")
 
-    # -------- Normalizações --------
+    # tenta detectar colunas principais
+    col_data = _find_col(df, ["data"])
+    col_hora = _find_col(df, ["hora"])
+    col_bairro = _find_col(df, ["bairr"])
+    col_log = _find_col(df, ["lograd"])
+    col_crime = _find_col(df, ["natur", "crime", "ocorr"])
 
-    # Coluna de Data
-    col_data = _find_column(df.columns, ["DATA"])
-    if not col_data:
-        raise KeyError("Não encontrei coluna de data (nome contendo 'DATA').")
+    # DATA
+    if col_data:
+        df["data"] = pd.to_datetime(df[col_data], errors="coerce")
+    else:
+        df["data"] = pd.NaT
 
-    df[col_data] = pd.to_datetime(df[col_data], errors="coerce")
-    df = df.dropna(subset=[col_data])
-    df.rename(columns={col_data: "DataFato"}, inplace=True)
-
-    # Ano
-    df["Ano"] = df["DataFato"].dt.year
-
-    # Dia da semana (sem usar locale do sistema; mapeia manualmente para PT-BR)
-    dias_map = {
-        "Monday": "Segunda",
-        "Tuesday": "Terça",
-        "Wednesday": "Quarta",
-        "Thursday": "Quinta",
-        "Friday": "Sexta",
-        "Saturday": "Sábado",
-        "Sunday": "Domingo",
-    }
-    df["DiaSemana"] = df["DataFato"].dt.day_name().map(dias_map)
-
-    # Coluna de Hora
-    col_hora = _find_column(df.columns, ["HORA"])
-    if not col_hora:
-        col_hora = _find_column(df.columns, ["HORAFATO"])  # ex: HoraFato(h)
-
+    # HORA (aceita 0–23, "13:00", 1300, etc)
     if col_hora:
-        def parse_hour(v):
-            if isinstance(v, (int, float)):
-                return int(v)
-            if isinstance(v, str):
-                v = v.strip()
-                v = v.replace("h", "").replace("H", "")
-                try:
-                    return int(v)
-                except ValueError:
-                    return np.nan
-            return np.nan
-
-        df["HoraInt"] = df[col_hora].apply(parse_hour)
+        hora_raw = df[col_hora].astype(str).str.extract(r"(\d{1,2})")[0]
+        df["hora"] = pd.to_numeric(hora_raw, errors="coerce").astype("Int64")
     else:
-        df["HoraInt"] = np.nan
+        df["hora"] = pd.NA
 
-    # Coluna de Logradouro
-    col_log = _find_column(df.columns, ["LOGRADOURO"])
-    if not col_log:
-        col_log = _find_column(df.columns, ["ENDERECO"])
-
-    if col_log:
-        def agrupa_logradouro(s):
-            if not isinstance(s, str):
-                return "SEM LOGRADOURO"
-            t = s.upper().strip()
-            if "DANTE MICHE" in t:
-                return "AV DANTE MICHELINI (TODAS AS VARIANTES)"
-            return t
-        df["LogradouroAgrupado"] = df[col_log].apply(agrupa_logradouro)
+    # BAIRRO / LOGRADOURO / CRIME
+    df["bairro"] = (
+        df[col_bairro].fillna("S/I").astype(str).str.upper().str.strip()
+        if col_bairro
+        else "S/I"
+    )
+    df["logradouro"] = (
+        df[col_log].fillna("S/I").astype(str).str.upper().str.strip()
+        if col_log
+        else "S/I"
+    )
+    if col_crime:
+        df["crime"] = (
+            df[col_crime]
+            .fillna("NÃO INFORMADO")
+            .astype(str)
+            .str.upper()
+            .str.strip()
+        )
     else:
-        df["LogradouroAgrupado"] = "SEM LOGRADOURO"
-
-    # Quantidade de ocorrências: se não existir, cada linha vale 1
-    col_qt = _find_column(df.columns, ["QT"])
-    if not col_qt:
-        col_qt = _find_column(df.columns, ["QTD"])
-
-    if col_qt:
-        df.rename(columns={col_qt: "QtOcorr"}, inplace=True)
-    else:
-        df["QtOcorr"] = 1
+        df["crime"] = "NÃO INFORMADO"
 
     return df
 
 
 # -------------------------------------------------------------------
-# Geração dos insights preditivos para o painel
+# Cálculo de insights (kpis + crimes + previsões)
 # -------------------------------------------------------------------
-def gerar_insights(df: pd.DataFrame):
+def calcular_insights(df: pd.DataFrame):
     agora = datetime.utcnow()
-    ultima_atualizacao = agora.strftime("%d/%m/%Y %H:%M UTC")
 
-    df_sorted = df.sort_values("DataFato")
-    total_geral = int(df_sorted["QtOcorr"].sum())
-
-    # Registros nas últimas 24h (em relação à última data da base)
-    if not df_sorted.empty:
-        ultima_data = df_sorted["DataFato"].max()
-        limite_24h = ultima_data - timedelta(days=1)
-        df_24h = df_sorted[df_sorted["DataFato"] >= limite_24h]
-        reg_24h = int(df_24h["QtOcorr"].sum())
+    # janela de 24h (baseada na maior data da planilha)
+    if df["data"].notna().any():
+        data_max = df["data"].max()
+        janela_fim = (data_max + timedelta(days=1)) if not pd.isna(data_max) else agora
+        janela_ini = janela_fim - timedelta(days=1)
+        mask_24h = (df["data"] >= janela_ini) & (df["data"] < janela_fim)
+        df_24h = df.loc[mask_24h]
     else:
-        reg_24h = 0
+        df_24h = df.copy()
 
-    # Eventos previstos hoje (média dos últimos 7 dias)
-    df_sorted["DataDia"] = df_sorted["DataFato"].dt.date
-    diaria = df_sorted.groupby("DataDia")["QtOcorr"].sum()
-    if len(diaria) >= 7:
-        eventos_previstos = int(round(diaria.tail(7).mean()))
-    elif len(diaria) > 0:
-        eventos_previstos = int(round(diaria.mean()))
+    registros_24h = len(df_24h)
+
+    hoje = agora.date()
+    df_hoje = df[df["data"].dt.date == hoje] if df["data"].notna().any() else df
+    eventos_previstos_hoje = int(df_hoje.shape[0] * 0.6)
+
+    hora_series = df_24h["hora"].dropna().astype(int)
+    if not hora_series.empty:
+        top_horas = hora_series.value_counts().head(3)
+        logradouros_risco = (
+            df_24h.groupby("logradouro")["crime"].count()
+            .sort_values(ascending=False)
+            .head(3)
+        )
     else:
-        eventos_previstos = 0
+        top_horas = pd.Series(dtype=int)
+        logradouros_risco = pd.Series(dtype=int)
 
-    # Top logradouros / pontos
-    top_log = (
-        df_sorted.groupby("LogradouroAgrupado")["QtOcorr"]
-        .sum()
-        .reset_index()
-        .sort_values("QtOcorr", ascending=False)
-    )
-    top3_log = top_log.head(3)
-    qtd_log_alto = len(top3_log)
-
-    # “Precisão” – por enquanto, simbólica
-    precisao_modelo = "91%"
+    n_log_risco = len(logradouros_risco)
+    precisao = "91%"  # placeholder: pode ser refinado depois
 
     kpis = [
-        {"nome": "Registros nas últimas 24h", "valor": reg_24h},
-        {"nome": "Eventos previstos hoje", "valor": eventos_previstos},
-        {"nome": "Logradouros em alto risco", "valor": qtd_log_alto},
-        {"nome": "Precisão estimada (30 dias)", "valor": precisao_modelo},
+        {"nome": "Registros nas últimas 24h", "valor": registros_24h},
+        {"nome": "Eventos previstos hoje", "valor": eventos_previstos_hoje},
+        {"nome": "Logradouros em alto risco", "valor": n_log_risco},
+        {"nome": "Precisão estimada (30 dias)", "valor": precisao},
     ]
 
-    # Horários mais críticos
-    horarios = (
-        df_sorted.dropna(subset=["HoraInt"])
-        .groupby("HoraInt")["QtOcorr"]
-        .sum()
-        .reset_index()
-        .sort_values("QtOcorr", ascending=False)
-    )
+    # Top horários (geral)
     top_horarios = []
-    if not horarios.empty:
-        max_hora = horarios["QtOcorr"].max()
-        for _, row in horarios.head(5).iterrows():
-            qtd = int(row["QtOcorr"])
-            if qtd >= max_hora * 0.7:
-                risco = "alto"
-            elif qtd >= max_hora * 0.4:
-                risco = "medio"
-            else:
-                risco = "baixo"
-            top_horarios.append(
-                {"hora": int(row["HoraInt"]), "qtd": qtd, "risco": risco}
+    for hora, qt in top_horas.items():
+        risco = "alto" if qt >= top_horas.max() * 0.7 else "médio"
+        top_horarios.append({"hora": int(hora), "total": int(qt), "risco": risco})
+
+    # Top logradouros
+    top_logradouros = []
+    for log, qt in logradouros_risco.items():
+        top_logradouros.append({"logradouro": log.title(), "total": int(qt)})
+
+    # Forecast simples por hora (média histórica)
+    projecoes_24h = []
+    hora_counts = df["hora"].dropna().astype(int).value_counts()
+    dias_distintos = df["data"].dt.date.nunique() or 1
+    max_hora_media = (
+        hora_counts.max() / dias_distintos if not hora_counts.empty else 0
+    )
+
+    for h in range(24):
+        total_h = hora_counts.get(h, 0)
+        estimado = total_h / dias_distintos
+        if max_hora_media > 0 and estimado >= max_hora_media * 0.7:
+            risco = "alto"
+        elif estimado > 0:
+            risco = "médio"
+        else:
+            risco = "baixo"
+        projecoes_24h.append(
+            {"hora": h, "valor_previsto": float(round(estimado, 2)), "risco": risco}
+        )
+
+    # --- POR CRIME ---
+    crimes_resumo = []
+    crime_counts = df["crime"].value_counts().head(8)
+    max_crime = crime_counts.max() if not crime_counts.empty else 1
+    for crime, qt in crime_counts.items():
+        ratio = qt / max_crime
+        if ratio >= 0.7:
+            risco = "alto"
+        elif ratio >= 0.4:
+            risco = "médio"
+        else:
+            risco = "baixo"
+        crimes_resumo.append({"crime": crime, "total": int(qt), "risco": risco})
+
+    # crime x hora
+    crime_hora = []
+    if df["hora"].notna().any():
+        grp_ch = df.dropna(subset=["hora"]).groupby(["crime", "hora"]).size()
+        for (crime, hora), qt in grp_ch.items():
+            crime_hora.append(
+                {"crime": crime, "hora": int(hora), "valor": float(qt)}
             )
 
-    # Top logradouros para o HTML
-    top_logradouros = [
-        {"logradouro": r["LogradouroAgrupado"], "total": int(r["QtOcorr"])}
-        for _, r in top3_log.iterrows()
-    ]
-
-    # Tendência das últimas semanas (total)
-    df_sorted["Semana"] = df_sorted["DataFato"].dt.isocalendar().week.astype(int)
-    df_sorted["SemanaAno"] = (
-        df_sorted["DataFato"].dt.year.astype(str)
-        + "-"
-        + df_sorted["Semana"].astype(str)
-    )
-    semana_agg = (
-        df_sorted.groupby("SemanaAno")["QtOcorr"]
-        .sum()
-        .reset_index()
-        .sort_values("SemanaAno")
-    )
-
-    tendencias = []
-    if len(semana_agg) >= 4:
-        ult2 = semana_agg["QtOcorr"].tail(2).mean()
-        ant2 = semana_agg["QtOcorr"].iloc[-4:-2].mean()
-        if ant2 > 0:
-            delta = (ult2 - ant2) / ant2 * 100
-            movimento = "estável"
-            if delta > 8:
-                movimento = "alta"
-            elif delta < -8:
-                movimento = "queda"
-            tendencias.append(
+    # crime x hora x bairro
+    crime_hora_bairro = []
+    if df["hora"].notna().any():
+        grp_chb = df.dropna(subset=["hora"]).groupby(["crime", "hora", "bairro"]).size()
+        for (crime, hora, bairro), qt in grp_chb.items():
+            crime_hora_bairro.append(
                 {
-                    "nome": "Ocorrências totais",
-                    "movimento": movimento,
-                    "percent": f"{delta:.1f}",
+                    "crime": crime,
+                    "hora": int(hora),
+                    "bairro": bairro,
+                    "valor": float(qt),  # pode virar índice normalizado depois
                 }
             )
 
-    # Sazonalidade – dia da semana com mais registros
-    sazonalidade = []
-    semana_agg2 = (
-        df_sorted.groupby("DiaSemana")["QtOcorr"]
-        .sum()
-        .reset_index()
-        .sort_values("QtOcorr", ascending=False)
-    )
-    if not semana_agg2.empty:
-        top_dia = semana_agg2.iloc[0]
-        sazonalidade.append(
-            {
-                "padrao": f"Pico semanal em {top_dia['DiaSemana']}",
-                "descricao": "Recomenda-se reforço de efetivo e presença preventiva neste dia.",
-            }
-        )
-
-    # Projeções simplificadas por hora (média histórica)
-    projecoes_24h = []
-    if df_sorted["HoraInt"].notna().any():
-        hora_agg = (
-            df_sorted.dropna(subset=["HoraInt"])
-            .groupby("HoraInt")["QtOcorr"]
-            .mean()
-            .reset_index()
-        )
-        if not hora_agg.empty:
-            max_v = hora_agg["QtOcorr"].max()
-            for _, row in hora_agg.sort_values("HoraInt").iterrows():
-                val = row["QtOcorr"]
-                if max_v > 0:
-                    if val >= max_v * 0.7:
-                        risco = "alto"
-                    elif val >= max_v * 0.4:
-                        risco = "médio"
-                    else:
-                        risco = "baixo"
-                else:
-                    risco = "baixo"
-                projecoes_24h.append(
-                    {
-                        "hora": int(row["HoraInt"]),
-                        "valor_previsto": f"{val:.1f}",
-                        "risco": risco,
-                    }
-                )
-
-    # Alertas inteligentes básicos
+    # Alertas simples (pode ser evoluído)
     alertas = []
-    if eventos_previstos > 0 and reg_24h > eventos_previstos * 1.3:
-        alertas.append(
-            {
-                "titulo": "Aumento atípico nas últimas 24h",
-                "descricao": "Volume de ocorrências acima do previsto. Avaliar reforço imediato.",
-            }
-        )
-    if top_logradouros:
-        alertas.append(
-            {
-                "titulo": f"Logradouro crítico: {top_logradouros[0]['logradouro']}",
-                "descricao": "Manter viatura presente e operações dirigidas neste ponto.",
-            }
-        )
+    if projecoes_24h:
+        pico = max(projecoes_24h, key=lambda x: x["valor_previsto"])
+        if pico["valor_previsto"] > 0:
+            alertas.append(
+                {
+                    "titulo": f"Pico previsto às {pico['hora']:02d}h",
+                    "descricao": f"Maior concentração esperada de ocorrências ({pico['valor_previsto']:.1f}/hora).",
+                }
+            )
 
-    contexto = {
-        "ultima_atualizacao": ultima_atualizacao,
+    return {
         "kpis": kpis,
         "top_horarios": top_horarios,
         "top_logradouros": top_logradouros,
-        "tendencias": tendencias,
-        "sazonalidade": sazonalidade,
         "projecoes_24h": projecoes_24h,
+        "crimes_resumo": crimes_resumo,
+        "crime_hora": crime_hora,
+        "crime_hora_bairro": crime_hora_bairro,
         "alertas": alertas,
     }
-    return contexto
 
 
 # -------------------------------------------------------------------
-# Pré-carrega a base (se falhar, mostra erro no painel)
-# -------------------------------------------------------------------
-try:
-    DF_JC = carregar_base_jardim_camburi()
-    LOAD_ERROR = None
-except Exception as e:
-    DF_JC = None
-    LOAD_ERROR = str(e)
-
-
-# -------------------------------------------------------------------
-# ROTA PRINCIPAL
+# Rota principal
 # -------------------------------------------------------------------
 @app.route("/")
 def index():
-    """Rota principal do painel preditivo."""
-    if DF_JC is None:
-        contexto = {
-            "ultima_atualizacao": datetime.utcnow().strftime("%d/%m/%Y %H:%M UTC"),
+    try:
+        df = carregar_base_jardim_camburi()
+        insights = calcular_insights(df)
+    except Exception as exc:
+        # Se der erro (Drive, colunas, etc.), não derruba o painel:
+        insights = {
             "kpis": [
                 {"nome": "Registros nas últimas 24h", "valor": 0},
                 {"nome": "Eventos previstos hoje", "valor": 0},
@@ -375,23 +287,25 @@ def index():
             ],
             "top_horarios": [],
             "top_logradouros": [],
-            "tendencias": [],
-            "sazonalidade": [],
             "projecoes_24h": [],
+            "crimes_resumo": [],
+            "crime_hora": [],
+            "crime_hora_bairro": [],
             "alertas": [
                 {
                     "titulo": "Erro ao carregar dados",
-                    "descricao": LOAD_ERROR
-                    or "Verifique as variáveis de ambiente e a configuração do Google Drive.",
+                    "descricao": str(exc),
                 }
             ],
         }
-    else:
-        contexto = gerar_insights(DF_JC)
 
-    return render_template("index.html", **contexto)
+    context = {
+        "ultima_atualizacao": datetime.utcnow().strftime("%d/%m/%Y %H:%M UTC"),
+        **insights,
+    }
+    return render_template("index.html", **context)
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    # Em produção o Render usa gunicorn; isso é só para rodar local.
+    app.run(host="0.0.0.0", port=5000, debug=True)
