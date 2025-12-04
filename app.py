@@ -97,7 +97,7 @@ def carregar_dados_simulados():
             },
         ],
 
-        # Resumo da operação hoje (pode ligar depois nas suas escalas)
+        # Resumo da operação hoje
         "operacao_hoje": {
             "viaturas": 18,
             "pontos_quentes": 6,
