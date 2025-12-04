@@ -6,64 +6,152 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <header>
-    <h1>Painel Preditivo</h1>
-    <p class="subtitle">Visão rápida de indicadores, previsões e alertas operacionais.</p>
-    <p class="updated">Última atualização: {{ dados.ultima_atualizacao }}</p>
+  <header class="topbar">
+    <div>
+      <h1>Painel Preditivo</h1>
+      <p class="subtitle">
+        Visão tática de risco, previsões e recomendações para a operação.
+      </p>
+      <p class="updated">Última atualização: {{ dados.ultima_atualizacao }}</p>
+    </div>
+    <div class="status-pill">
+      <span class="status-dot"></span>
+      Modelo em execução • Versão beta (dados simulados)
+    </div>
   </header>
 
-  <main>
+  <main class="page-grid">
 
-    <!-- KPIs principais -->
-    <section class="grid kpi-grid">
-      {% for kpi in dados.kpis %}
-        <div class="card kpi-card">
-          <span class="kpi-label">{{ kpi.nome }}</span>
-          <span class="kpi-value">{{ kpi.valor }}</span>
-        </div>
-      {% endfor %}
-    </section>
+    <!-- COLUNA ESQUERDA --------------------------------------------------- -->
+    <section class="col-left">
 
-    <!-- Alertas -->
-    <section class="card alerts-card">
-      <h2>Alertas</h2>
-      <ul class="alerts-list">
-        {% for alerta in dados.alertas %}
-          <li class="alert alert-{{ alerta.nivel }}">
-            <strong>[{{ alerta.nivel|upper }}]</strong>
-            <span>{{ alerta.mensagem }}</span>
-          </li>
-        {% endfor %}
-      </ul>
-    </section>
-
-    <!-- Tabela de previsões -->
-    <section class="card table-card">
-      <h2>Previsões de incidentes</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Período</th>
-            <th>Incidentes previstos</th>
-            <th>Tendência</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for previsao in dados.previsoes %}
-            <tr>
-              <td>{{ previsao.periodo }}</td>
-              <td>{{ previsao.incidentes }}</td>
-              <td class="tendencia">{{ previsao.tendencia }}</td>
-            </tr>
+      <!-- KPIs principais -->
+      <section class="card kpi-wrapper">
+        <h2 class="card-title">Visão rápida</h2>
+        <div class="kpi-grid">
+          {% for kpi in dados.kpis %}
+            <div class="kpi-card">
+              <span class="kpi-label">{{ kpi.nome }}</span>
+              <span class="kpi-value">{{ kpi.valor }}</span>
+            </div>
           {% endfor %}
-        </tbody>
-      </table>
+        </div>
+      </section>
+
+      <!-- Risco por faixa de horário -->
+      <section class="card">
+        <h2 class="card-title">Risco ao longo do dia</h2>
+        <p class="card-subtitle">
+          Cada faixa indica a intensidade de risco prevista pelo modelo.
+        </p>
+        <div class="timeline">
+          {% for faixa in dados.risco_horario %}
+            <div class="slot risco-{{ faixa.risco }}">
+              <span class="slot-hour">{{ faixa.faixa }}</span>
+              <span class="slot-risk">{{ faixa.risco|capitalize }}</span>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="legend">
+          <span class="badge risco-baixo">Baixo</span>
+          <span class="badge risco-medio">Médio</span>
+          <span class="badge risco-alto">Alto</span>
+        </div>
+      </section>
+
+      <!-- Previsões agregadas -->
+      <section class="card">
+        <h2 class="card-title">Previsões de incidentes</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Período</th>
+              <th>Incidentes previstos</th>
+              <th>Tendência</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for previsao in dados.previsoes %}
+              <tr>
+                <td>{{ previsao.periodo }}</td>
+                <td>{{ previsao.incidentes }}</td>
+                <td class="tendencia">{{ previsao.tendencia }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+
     </section>
 
-  </main>
+    <!-- COLUNA DIREITA ---------------------------------------------------- -->
+    <section class="col-right">
 
-  <footer>
-    <small>Painel Preditivo – Flask + Render • Versão inicial (dados simulados)</small>
-  </footer>
-</body>
-</html>
+      <!-- Alertas -->
+      <section class="card">
+        <h2 class="card-title">Alertas</h2>
+        <ul class="alerts-list">
+          {% for alerta in dados.alertas %}
+            <li class="alert alert-{{ alerta.nivel }}">
+              <strong>[{{ alerta.nivel|upper }}]</strong>
+              <span>{{ alerta.mensagem }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+
+      <!-- Top bairros -->
+      <section class="card">
+        <h2 class="card-title">Top bairros em risco</h2>
+        <table class="table compact">
+          <thead>
+            <tr>
+              <th>Bairro</th>
+              <th>Incidentes (prev.)</th>
+              <th>Tendência</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in dados.top_bairros %}
+              <tr>
+                <td>{{ b.bairro }}</td>
+                <td>{{ b.incidentes }}</td>
+                <td class="tendencia">{{ b.tendencia }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Operação hoje -->
+      <section class="card">
+        <h2 class="card-title">Operação de hoje</h2>
+        <div class="op-grid">
+          <div class="op-item">
+            <span class="op-label">Viaturas previstas</span>
+            <span class="op-value">{{ dados.operacao_hoje.viaturas }}</span>
+          </div>
+          <div class="op-item">
+            <span class="op-label">Pontos quentes</span>
+            <span class="op-value">{{ dados.operacao_hoje.pontos_quentes }}</span>
+          </div>
+          <div class="op-item">
+            <span class="op-label">Turno crítico</span>
+            <span class="op-value destaque">
+              {{ dados.operacao_hoje.turno_critico }}
+            </span>
+          </div>
+        </div>
+        <p class="op-comment">
+          {{ dados.operacao_hoje.comentario }}
+        </p>
+      </section>
+
+      <!-- Anomalias e recomendações -->
+      <section class="card">
+        <h2 class="card-title">Anomalias e recomendações</h2>
+
+        <h3 class="mini-title">Anomalias detectadas</h3>
+        <ul class="anomalias-list">
+          {% for a in dados.anomalias %}
+            <li class="anomalia anomalia-{{ a.imp
