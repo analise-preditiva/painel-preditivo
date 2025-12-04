@@ -1,233 +1,555 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<title>CERCO AI • Painel Preditivo Jardim Camburi</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <title>CERCO AI • Painel Preditivo Jardim Camburi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
 
-<style>
-  body {
-    background: #0b1220;
-    color: #e4e6eb;
-    font-family: 'Inter', system-ui, sans-serif;
-  }
+  <!-- Leaflet (mapa) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  .card-dark {
-    background: #141b2d;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 14px;
-    padding: 1.2rem;
-    box-shadow: 0 0 25px rgba(0,0,0,0.35);
-  }
+  <!-- Chart.js (gráficos) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-  .kpi-value {
-    font-size: 2rem;
-    font-weight: 700;
-  }
+  <style>
+    :root{
+      --bg: #020617;
+      --bg-card: #0b1120;
+      --bg-soft: #111827;
+      --accent: #3b82f6;
+      --accent-soft: #1d4ed8;
+      --accent-green: #22c55e;
+      --text-main: #e5e7eb;
+      --text-soft: #9ca3af;
+      --border-soft: rgba(148,163,184,0.3);
+      --danger: #ef4444;
+      --warning: #eab308;
+    }
 
-  .kpi-label {
-    color: #8f9bb3;
-    font-size: 0.8rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
+    * { box-sizing: border-box; }
 
-  .titulo-secao {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #c7d0e0;
-    margin-bottom: 0.6rem;
-  }
+    body {
+      background: radial-gradient(circle at top, #020617 0, #000 60%);
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
 
-  .badge-risk-high {
-    background: #b91c1c;
-  }
+    .wrapper {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.5rem 0 3rem;
+    }
 
-  .badge-risk-med {
-    background: #ca8a04;
-  }
+    .card-shell {
+      background: linear-gradient(145deg, #020617, #020617 40%, #030712 100%);
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 22px 45px rgba(15,23,42,0.85);
+    }
 
-  .badge-risk-low {
-    background: #1d4ed8;
-  }
+    .card-inner {
+      background: radial-gradient(circle at top left, #111827 0, #020617 60%);
+      border-radius: 14px;
+      padding: 1.1rem 1.25rem;
+    }
 
-  .tag {
-    padding: 3px 9px;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    background: rgba(255,255,255,0.08);
-  }
+    .badge-chip {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      color: #cbd5f5;
+      background: rgba(15,23,42,0.9);
+    }
 
-  .lista-item {
-    padding: 6px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
+    .badge-chip-primary {
+      background-image: linear-gradient(135deg, #3b82f6, #22c55e);
+      border-color: transparent;
+      color: #f9fafb;
+      box-shadow: 0 0 14px rgba(56,189,248,0.6);
+    }
 
-  .projecao-box {
-    border-left: 4px solid #3b82f6;
-    padding-left: 12px;
-    margin-bottom: 10px;
-  }
+    .kpi-value {
+      font-size: 2.1rem;
+      font-weight: 700;
+    }
 
-</style>
+    .kpi-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-soft);
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    .section-sub {
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      margin-bottom: 0.3rem;
+    }
+
+    .pill-risk {
+      border-radius: 999px;
+      font-size: 0.7rem;
+      padding: 0.12rem 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+    }
+    .pill-risk-alto   { background: var(--danger);  color: #fee2e2; }
+    .pill-risk-medio  { background: var(--warning); color: #fef9c3; }
+    .pill-risk-baixo  { background: var(--accent-soft); color: #dbeafe; }
+
+    .list-row {
+      padding: 0.25rem 0;
+      border-bottom: 1px solid rgba(31,41,55,0.9);
+      font-size: 0.86rem;
+    }
+    .list-row:last-child { border-bottom: none; }
+
+    .list-row-clickable {
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .list-row-clickable:hover {
+      background: rgba(15,23,42,0.9);
+    }
+
+    .small-muted {
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    /* Bloco do mapa */
+    #map {
+      width: 100%;
+      height: 260px;
+      border-radius: 12px;
+      border: 1px solid rgba(31,41,55,0.9);
+      overflow: hidden;
+    }
+
+    /* Bloco do gráfico */
+    #forecastChart {
+      width: 100%;
+      height: 260px;
+    }
+
+    /* Linha lateral da projeção (estilo "timeline") */
+    .forecast-timeline-row {
+      border-left: 2px solid rgba(148,163,184,0.6);
+      margin-left: 0.3rem;
+      padding-left: 0.8rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .forecast-time {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .forecast-meta {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+    }
+
+    .badge-soft {
+      font-size: 0.7rem;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      color: var(--text-soft);
+    }
+
+    .divider-soft {
+      border-bottom: 1px dashed rgba(75,85,99,0.85);
+      margin: 0.4rem 0;
+    }
+
+    @media (max-width: 991.98px) {
+      .wrapper { padding-inline: 0.75rem; }
+      .kpi-value { font-size: 1.7rem; }
+    }
+  </style>
 </head>
 
 <body>
-<div class="container py-4">
+<div class="wrapper">
 
-  <!-- Cabeçalho -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <!-- HEADER -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
     <div>
-      <h2 class="fw-bold mb-0">CERCO AI • Painel Preditivo</h2>
-      <small class="text-secondary">Jardim Camburi — atualizado em {{ ultima_atualizacao }}</small>
+      <h2 class="mb-1 fw-bold">
+        <span class="text-light">CERCO AI</span>
+        <span class="text-secondary">• Painel Preditivo</span>
+      </h2>
+      <div class="small-muted">
+        Jardim Camburi — atualizado em {{ ultima_atualizacao }}
+      </div>
     </div>
-    <div>
-      <span class="tag">Modelo N7 • Forecast 24h</span>
-      <span class="tag">Google Drive API</span>
+    <div class="d-flex flex-wrap gap-2">
+      <span class="badge-chip badge-chip-primary">Modelo N7 • Forecast 24h</span>
+      <span class="badge-chip">Google Drive API</span>
+      <span class="badge-chip">Jardim Camburi • Vitória/ES</span>
     </div>
   </div>
 
   <!-- KPIs -->
-  <div class="row g-3 mb-4">
+  <div class="row g-3 mb-3">
     {% for k in kpis %}
-    <div class="col-6 col-md-3">
-      <div class="card-dark">
-        <div class="kpi-value">{{ k.valor }}</div>
-        <div class="kpi-label">{{ k.nome }}</div>
+    <div class="col-6 col-lg-3">
+      <div class="card-shell h-100">
+        <div class="card-inner">
+          <div class="kpi-value">{{ k.valor }}</div>
+          <div class="kpi-label">{{ k.nome }}</div>
+        </div>
       </div>
     </div>
     {% endfor %}
   </div>
 
-
-  <!-- 3 COLUNAS PRINCIPAIS -->
-  <div class="row g-4">
-
-    <!-- HORÁRIOS DE MAIOR RISCO -->
-    <div class="col-lg-4">
-      <div class="card-dark h-100">
-        <div class="titulo-secao">Horários mais críticos</div>
-
-        {% if top_horarios %}
-          {% for h in top_horarios %}
-          <div class="lista-item d-flex justify-content-between">
-            <span>{{ h.hora }}h</span>
-            <span class="badge {% if h.risco=='alto' %}badge-risk-high{% elif h.risco=='medio' %}badge-risk-med{% else %}badge-risk-low{% endif %}">
-              {{ h.risco | capitalize }}
-            </span>
+  <!-- BLOCO INTERATIVO PRINCIPAL -->
+  <div class="row g-3 mb-3">
+    <!-- Horários críticos -->
+    <div class="col-lg-3">
+      <div class="card-shell h-100">
+        <div class="card-inner h-100 d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <div class="section-title mb-0">Horários mais críticos</div>
+            <span class="badge-soft">última base</span>
           </div>
-          {% endfor %}
-        {% else %}
-          <small class="text-secondary">Sem dados suficientes.</small>
-        {% endif %}
+          <div class="section-sub">Clique em um horário para destacar no gráfico de previsão.</div>
+
+          <div class="flex-grow-1 mt-1">
+            {% if top_horarios %}
+              {% for h in top_horarios %}
+              <div class="list-row list-row-clickable d-flex justify-content-between align-items-center"
+                   data-hour="{{ h.hora }}">
+                <span>{{ "%02d"|format(h.hora) }}h</span>
+                <span class="pill-risk
+                  {% if h.risco == 'alto' %}pill-risk-alto
+                  {% elif h.risco == 'medio' %}pill-risk-medio
+                  {% else %}pill-risk-baixo
+                  {% endif %}">
+                  {{ h.risco|capitalize }}
+                </span>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="small-muted">Sem dados suficientes.</div>
+            {% endif %}
+          </div>
+
+          <div class="mt-2 small-muted">
+            Interpretação rápida para a chefia: <br>
+            <span class="text-light">vermelho = horário com maior concentração de ocorrências históricas.</span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- LOGRADOUROS -->
-    <div class="col-lg-4">
-      <div class="card-dark h-100">
-        <div class="titulo-secao">Logradouros com maior incidência</div>
-
-        {% if top_logradouros %}
-          {% for l in top_logradouros %}
-          <div class="lista-item d-flex justify-content-between">
-            <span>{{ l.logradouro }}</span>
-            <strong>{{ l.total }}</strong>
+    <!-- Mapa -->
+    <div class="col-lg-5">
+      <div class="card-shell h-100">
+        <div class="card-inner h-100 d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <div class="section-title mb-0">Mapa tático de risco</div>
+            <span class="badge-soft">Jardim Camburi</span>
           </div>
-          {% endfor %}
-        {% else %}
-          <small class="text-secondary">Sem dados.</small>
-        {% endif %}
+          <div class="section-sub">
+            Círculos maiores indicam logradouros com maior volume de registros.
+          </div>
+          <div id="map" class="mt-1 flex-grow-1"></div>
+          <div class="mt-2 small-muted">
+            Este mapa é ilustrativo com base nos logradouros agregados. Na versão completa, podemos
+            plugar diretamente as coordenadas das ocorrências do CERCO AI.
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- TENDÊNCIAS -->
+    <!-- Logradouros e tendências -->
     <div class="col-lg-4">
-      <div class="card-dark h-100">
-        <div class="titulo-secao">Tendências (últimas semanas)</div>
+      <div class="card-shell h-100">
+        <div class="card-inner h-100 d-flex flex-column">
+          <div class="section-title">Logradouros com maior incidência</div>
+          <div class="section-sub">Top 3 pontos mais sensíveis de Jardim Camburi.</div>
 
-        {% if tendencias %}
-          {% for t in tendencias %}
-          <div class="lista-item d-flex justify-content-between">
-            <span>{{ t.nome }}</span>
-            <span class="{% if t.movimento=='alta' %}text-danger{% elif t.movimento=='queda' %}text-success{% endif %}">
-              {{ t.movimento | capitalize }} ({{ t.percent }}%)
-            </span>
+          <div class="flex-grow-1">
+            {% if top_logradouros %}
+              {% for l in top_logradouros %}
+              <div class="list-row d-flex justify-content-between align-items-center">
+                <div class="me-2">
+                  <div>{{ l.logradouro }}</div>
+                  <div class="small-muted">Foco para rondas dirigidas e PB.</div>
+                </div>
+                <strong>{{ l.total }}</strong>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="small-muted">Sem dados.</div>
+            {% endif %}
           </div>
-          {% endfor %}
-        {% else %}
-          <small class="text-secondary">Nenhuma tendência detectada.</small>
-        {% endif %}
+
+          <div class="divider-soft"></div>
+
+          <div>
+            <div class="section-title mb-0">Tendências (últimas semanas)</div>
+            {% if tendencias %}
+              {% for t in tendencias %}
+                <div class="mt-1 d-flex justify-content-between">
+                  <span class="small-muted">{{ t.nome }}</span>
+                  <span class="{% if t.movimento=='alta' %}text-danger
+                                {% elif t.movimento=='queda' %}text-success{% endif %}">
+                    {{ t.movimento|capitalize }} ({{ t.percent }}%)
+                  </span>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="small-muted mt-1">Nenhuma tendência detectada.</div>
+            {% endif %}
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-
-  <!-- PROJEÇÃO 24H E SAZONALIDADE -->
-  <div class="row g-4 mt-2">
-
-    <!-- PROJEÇÃO 24H -->
-    <div class="col-lg-6">
-      <div class="card-dark">
-        <div class="titulo-secao">Projeção de Ocorrências — Próximas 24h</div>
-
-        {% if projecoes_24h %}
-          {% for p in projecoes_24h %}
-          <div class="projecao-box">
-            <div><strong>{{ p.hora }}h</strong> — risco {{ p.risco }}</div>
-            <small class="text-secondary">Estimado: {{ p.valor_previsto }}</small>
+  <!-- BLOCOS INFERIORES: Gráfico, sazonalidade, alertas -->
+  <div class="row g-3">
+    <!-- Gráfico -->
+    <div class="col-lg-7">
+      <div class="card-shell h-100">
+        <div class="card-inner h-100 d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <div>
+              <div class="section-title mb-0">Projeção de Ocorrências — Próximas 24h</div>
+              <div class="section-sub">Gráfico interativo por hora do dia.</div>
+            </div>
+            <span class="badge-soft">média histórica por hora</span>
           </div>
-          {% endfor %}
-        {% else %}
-          <small class="text-secondary">Sem projeções calculadas.</small>
-        {% endif %}
+
+          <div class="row g-3 flex-grow-1 mt-1">
+            <div class="col-md-7 d-flex">
+              <canvas id="forecastChart" class="flex-grow-1"></canvas>
+            </div>
+            <div class="col-md-5">
+              <div class="small-muted mb-1">Linha do tempo resumida</div>
+              <div style="max-height: 210px; overflow-y: auto;">
+                {% if projecoes_24h %}
+                  {% for p in projecoes_24h %}
+                  <div class="forecast-timeline-row">
+                    <div class="forecast-time">
+                      {{ "%02d"|format(p.hora) }}h —
+                      <span class="pill-risk
+                        {% if p.risco == 'alto' %}pill-risk-alto
+                        {% elif p.risco == 'médio' %}pill-risk-medio
+                        {% else %}pill-risk-baixo
+                        {% endif %}">
+                        {{ p.risco }}
+                      </span>
+                    </div>
+                    <div class="forecast-meta">
+                      Estimado: {{ p.valor_previsto }}
+                    </div>
+                  </div>
+                  {% endfor %}
+                {% else %}
+                  <div class="small-muted">Sem projeções calculadas.</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-2 small-muted">
+            Leitura executiva: concentrações acima da média em determinados horários indicam
+            janelas ideais para operações de saturação e PB prolongado.
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- SAZONALIDADE / PADRÕES -->
-    <div class="col-lg-6">
-      <div class="card-dark">
-        <div class="titulo-secao">Sazonalidade & Padrões</div>
+    <!-- Sazonalidade e alertas -->
+    <div class="col-lg-5">
+      <div class="card-shell h-100">
+        <div class="card-inner h-100 d-flex flex-column">
+          <div class="section-title">Sazonalidade & Padrões</div>
 
-        {% if sazonalidade %}
-          {% for s in sazonalidade %}
-          <div class="lista-item">
-            <strong>{{ s.padrao }}</strong><br>
-            <small class="text-secondary">{{ s.descricao }}</small>
+          <div class="mb-2">
+            {% if sazonalidade %}
+              {% for s in sazonalidade %}
+              <div class="mb-2">
+                <strong>{{ s.padrao }}</strong><br>
+                <span class="small-muted">{{ s.descricao }}</span>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="small-muted mb-2">Nenhum padrão detectado.</div>
+            {% endif %}
           </div>
-          {% endfor %}
-        {% else %}
-          <small class="text-secondary">Nenhum padrão detectado.</small>
-        {% endif %}
+
+          <div class="divider-soft"></div>
+
+          <div class="section-title mt-1">Alertas Inteligentes</div>
+
+          <div class="flex-grow-1">
+            {% if alertas %}
+              {% for a in alertas %}
+              <div class="mb-2">
+                <strong>{{ a.titulo }}</strong><br>
+                <span class="small-muted">{{ a.descricao }}</span>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="small-muted">Nenhum alerta crítico no momento.</div>
+            {% endif %}
+          </div>
+
+          <div class="mt-1 small-muted">
+            Os alertas são gerados automaticamente com base em desvios relevantes do comportamento
+            histórico de Jardim Camburi.
+          </div>
+        </div>
       </div>
     </div>
-
   </div>
 
+</div> <!-- wrapper -->
 
-  <!-- ALERTAS AUTOMÁTICOS -->
-  <div class="row mt-4">
-    <div class="col-12">
-      <div class="card-dark">
-        <div class="titulo-secao">Alertas Inteligentes</div>
+<!-- SCRIPTS DE INTERATIVIDADE -->
+<script>
+  // Dados vindos do backend (Flask/Jinja)
+  const projecoes24h = {{ projecoes_24h | tojson | safe }};
+  const topLogradouros = {{ top_logradouros | tojson | safe }};
 
-        {% if alertas %}
-          {% for a in alertas %}
-          <div class="lista-item">
-            <strong>{{ a.titulo }}</strong>
-            <div class="text-secondary small">{{ a.descricao }}</div>
-          </div>
-          {% endfor %}
-        {% else %}
-          <small class="text-secondary">Nenhum alerta crítico no momento.</small>
-        {% endif %}
-      </div>
-    </div>
-  </div>
+  // ---------- GRÁFICO CHART.JS ----------
+  let forecastChart = null;
+  (function initChart(){
+    const ctx = document.getElementById('forecastChart');
+    if (!ctx || !projecoes24h || projecoes24h.length === 0) return;
 
-</div>
+    const labels = projecoes24h.map(p => `${String(p.hora).padStart(2,'0')}h`);
+    const dataVals = projecoes24h.map(p => parseFloat(p.valor_previsto));
+
+    forecastChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Ocorrências estimadas',
+          data: dataVals,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) {
+                return `Estimado: ${ctx.parsed.y.toFixed(1)} ocorrências`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: '#9ca3af', font: { size: 10 } },
+            grid: { display: false }
+          },
+          y: {
+            ticks: { color: '#9ca3af', font: { size: 10 } },
+            grid: { color: 'rgba(55,65,81,0.5)' }
+          }
+        }
+      }
+    });
+  })();
+
+  // ---------- INTERAÇÃO: clique no horário crítico destaca barra ----------
+  (function bindHourClicks(){
+    if (!forecastChart) return;
+    const rows = document.querySelectorAll('[data-hour]');
+    rows.forEach(row => {
+      row.addEventListener('click', () => {
+        const h = row.getAttribute('data-hour');
+        const label = `${String(h).padStart(2,'0')}h`;
+        const idx = forecastChart.data.labels.indexOf(label);
+        if (idx >= 0) {
+          forecastChart.setActiveElements([{datasetIndex: 0, index: idx}]);
+          forecastChart.tooltip.setActiveElements([{datasetIndex: 0, index: idx}], {x:0,y:0});
+          forecastChart.update();
+          rows.forEach(r => r.classList.remove('bg-opacity-25','bg-dark'));
+          row.classList.add('bg-dark');
+        }
+      });
+    });
+  })();
+
+  // ---------- MAPA LEAFLET ----------
+  (function initMap() {
+    const mapDiv = document.getElementById('map');
+    if (!mapDiv) return;
+
+    // Centro aproximado de Jardim Camburi
+    const center = [-20.2735, -40.2860];
+
+    const map = L.map('map', {
+      center: center,
+      zoom: 14,
+      zoomControl: false,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    // Tabela simples de geocodificação manual para alguns logradouros
+    const geoLookup = {
+      "AV DANTE MICHELINI (TODAS AS VARIANTES)": [-20.2812, -40.2655],
+      "RUA CARLOS MARTINS": [-20.2750, -40.2910],
+      "S/I": center
+    };
+
+    if (topLogradouros && topLogradouros.length > 0) {
+      const maxTotal = Math.max(...topLogradouros.map(l => l.total || 0));
+
+      topLogradouros.forEach(l => {
+        const nome = (l.logradouro || "").toUpperCase();
+        const val = l.total || 0;
+        const base = geoLookup[nome] || center;
+
+        const intensidade = maxTotal > 0 ? (0.4 + 0.6 * (val / maxTotal)) : 0.4;
+        const radius = 80 + 220 * intensidade;
+
+        L.circle(base, {
+          radius: radius,
+          color: '#ef4444',
+          weight: 1,
+          fillOpacity: 0.25 + 0.35 * intensidade
+        }).addTo(map)
+          .bindPopup(`<strong>${l.logradouro}</strong><br>Total: ${val}`);
+      });
+    }
+  })();
+</script>
+
 </body>
 </html>
