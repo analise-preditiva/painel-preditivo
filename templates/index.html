@@ -92,15 +92,15 @@
     }
 
     .section-title {
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 600;
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.2rem;
     }
 
     .section-sub {
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       color: var(--text-soft);
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.2rem;
     }
 
     .pill-risk {
@@ -115,10 +115,15 @@
     .pill-risk-medio  { background: var(--warning); color: #fef9c3; }
     .pill-risk-baixo  { background: var(--accent-soft); color: #dbeafe; }
 
+    .small-muted {
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
     .list-row {
       padding: 0.25rem 0;
       border-bottom: 1px solid rgba(31,41,55,0.9);
-      font-size: 0.86rem;
+      font-size: 0.84rem;
     }
     .list-row:last-child { border-bottom: none; }
 
@@ -131,11 +136,6 @@
       transform: translateX(2px);
     }
 
-    .small-muted {
-      font-size: 0.78rem;
-      color: var(--text-soft);
-    }
-
     #map {
       width: 100%;
       height: 260px;
@@ -146,24 +146,7 @@
 
     #forecastChart {
       width: 100%;
-      height: 260px;
-    }
-
-    .forecast-timeline-row {
-      border-left: 2px solid rgba(148,163,184,0.6);
-      margin-left: 0.3rem;
-      padding-left: 0.8rem;
-      margin-bottom: 0.35rem;
-    }
-
-    .forecast-time {
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-
-    .forecast-meta {
-      font-size: 0.75rem;
-      color: var(--text-soft);
+      height: 210px;
     }
 
     .badge-soft {
@@ -174,26 +157,39 @@
       color: var(--text-soft);
     }
 
-    .divider-soft {
-      border-bottom: 1px dashed rgba(75,85,99,0.85);
-      margin: 0.4rem 0;
-    }
-
     .filter-chip {
       font-size: 0.75rem;
-      padding: 0.18rem 0.7rem;
+      padding: 0.16rem 0.6rem;
       border-radius: 999px;
       border: 1px solid rgba(148,163,184,0.5);
       cursor: pointer;
       color: var(--text-soft);
       background: transparent;
-      margin-right: 0.3rem;
-      margin-bottom: 0.25rem;
+      margin-right: 0.25rem;
+      margin-bottom: 0.1rem;
     }
     .filter-chip.active {
       background: linear-gradient(135deg, #3b82f6, #22c55e);
       color: #f9fafb;
       border-color: transparent;
+    }
+
+    .chip-critico {
+      font-size: 0.8rem;
+      padding: 0.18rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.8);
+      color: #fecaca;
+    }
+
+    .chip-info {
+      font-size: 0.8rem;
+      padding: 0.18rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.8);
+      color: #bfdbfe;
     }
 
     @media (max-width: 991.98px) {
@@ -209,17 +205,15 @@
   <!-- HEADER -->
   <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
     <div>
-      <h2 class="mb-1 fw-bold">
-        Painel Preditivo
-      </h2>
+      <h2 class="mb-1 fw-bold">Painel Preditivo</h2>
       <div class="small-muted">
-        Jardim Camburi — atualizado em {{ ultima_atualizacao }}
+        Jardim Camburi — atualização em {{ ultima_atualizacao }}
       </div>
     </div>
     <div class="d-flex flex-wrap gap-2">
-      <span class="badge-chip badge-chip-primary">Modelo N7 • Forecast 24h</span>
-      <span class="badge-chip">Base histórica Jardim Camburi</span>
-      <span class="badge-chip">Google Drive API</span>
+      <span class="badge-chip badge-chip-primary">Forecast 24h</span>
+      <span class="badge-chip">Histórico desde 2020</span>
+      <span class="badge-chip">Atualização automática (Excel / Drive)</span>
     </div>
   </div>
 
@@ -237,130 +231,147 @@
     {% endfor %}
   </div>
 
-  <!-- RESUMO EXECUTIVO + GRÁFICO/FILTROS -->
+  <!-- BLOCOS TÁTICOS DE DECISÃO -->
   <div class="row g-3 mb-3">
-    <!-- Resumo executivo -->
+    <!-- Janela crítica imediata -->
     <div class="col-lg-4">
       <div class="card-shell h-100">
-        <div class="card-inner h-100 d-flex flex-column">
-          <div class="section-title">Resumo executivo</div>
-          <div class="section-sub">
-            Síntese automática dos principais pontos de atenção em Jardim Camburi.
+        <div class="card-inner">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="section-title">Janela crítica imediata</span>
+            <span class="badge-soft">próximas 2h</span>
           </div>
-
-          <div class="small-muted">
-            {% set top_h = top_horarios[0] if top_horarios else None %}
-            {% set top_log = top_logradouros[0] if top_logradouros else None %}
-            {% set t = tendencias[0] if tendencias else None %}
-            {% set saz = sazonalidade[0] if sazonalidade else None %}
-
-            <ul class="ps-3">
-              <li>
-                {% if top_h %}
-                  Horário de maior risco: <strong>{{ "%02d"|format(top_h.hora) }}h</strong>
-                  com classificação <strong>{{ top_h.risco|capitalize }}</strong>.
-                {% else %}
-                  Sem horário crítico definido na base atual.
-                {% endif %}
-              </li>
-              <li>
-                {% if top_log %}
-                  Ponto com maior volume de registros:
-                  <strong>{{ top_log.logradouro }}</strong>
-                  ({{ top_log.total }} ocorrências).
-                {% else %}
-                  Nenhum logradouro com destaque significativo.
-                {% endif %}
-              </li>
-              <li>
-                {% if t %}
-                  Tendência geral nas últimas semanas:
-                  <strong>{{ t.movimento|capitalize }}</strong>
-                  ({{ t.percent }}% em relação ao período anterior).
-                {% else %}
-                  Não há tendência clara nas últimas semanas.
-                {% endif %}
-              </li>
-              <li>
-                {% if saz %}
-                  Padrão semanal: <strong>{{ saz.padrao }}</strong>.
-                {% else %}
-                  Não foi detectado padrão semanal relevante.
-                {% endif %}
-              </li>
-            </ul>
-          </div>
-
-          <div class="divider-soft"></div>
-
-          <div class="small-muted">
-            <strong>Sugestão para chefia:</strong><br>
-            Usar este painel em reuniões rápidas de 5 minutos no início do turno
-            para alinhar PB, rondas dirigidas e operações de saturação conforme
-            os horários e pontos críticos mostrados.
-          </div>
+          {% set janela = projecoes_24h|sort(attribute='valor_previsto', reverse=True)[:2] if projecoes_24h else [] %}
+          {% if janela %}
+            {% for p in janela %}
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <div>
+                <div><strong>{{ "%02d"|format(p.hora) }}h</strong></div>
+                <div class="small-muted">Risco {{ p.risco }}</div>
+              </div>
+              <div class="text-end">
+                <div class="chip-critico">↑ estimado: {{ p.valor_previsto }}</div>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="small-muted">Sem previsão calculada.</div>
+          {% endif %}
         </div>
       </div>
     </div>
 
-    <!-- Gráfico + filtros -->
-    <div class="col-lg-8">
+    <!-- Ponto mais sensível -->
+    <div class="col-lg-4">
+      <div class="card-shell h-100">
+        <div class="card-inner">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="section-title">Ponto mais sensível</span>
+            <span class="badge-soft">histórico</span>
+          </div>
+          {% if top_logradouros %}
+            {% set log = top_logradouros[0] %}
+            <div class="mb-1">
+              <strong>{{ log.logradouro }}</strong>
+            </div>
+            <div class="small-muted">
+              Total de {{ log.total }} registros desde o início da série.
+            </div>
+            <div class="mt-2 chip-info">
+              Priorizar PB e rondas dirigidas neste logradouro.
+            </div>
+          {% else %}
+            <div class="small-muted">Sem dados de logradouros.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Combinação dia x hora mais crítica -->
+    <div class="col-lg-4">
+      <div class="card-shell h-100">
+        <div class="card-inner">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="section-title">Combinação histórica crítica</span>
+            <span class="badge-soft">dia × hora</span>
+          </div>
+          {% set top_h = top_horarios[0] if top_horarios else None %}
+          {% set saz = sazonalidade[0] if sazonalidade else None %}
+          {% if top_h or saz %}
+            <div class="mb-1">
+              {% if saz %}
+                <div><strong>{{ saz.padrao }}</strong></div>
+              {% endif %}
+              {% if top_h %}
+                <div class="small-muted">Horário de maior concentração: {{ "%02d"|format(top_h.hora) }}h (risco {{ top_h.risco }}).</div>
+              {% endif %}
+            </div>
+            <div class="chip-info">
+              Melhor janela para operações planejadas e saturação.
+            </div>
+          {% else %}
+            <div class="small-muted">Ainda não há padrão estável registrado.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORECAST + LISTA DE PRÓXIMOS RISCOS -->
+  <div class="row g-3 mb-3">
+    <div class="col-lg-7">
       <div class="card-shell h-100">
         <div class="card-inner h-100 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-1">
-            <div>
-              <div class="section-title mb-0">Projeção de Ocorrências — Próximas 24h</div>
-              <div class="section-sub">Filtre por faixa do dia e interaja com o gráfico.</div>
-            </div>
-            <span class="badge-soft">média histórica por hora</span>
+            <div class="section-title mb-0">Forecast 24h por horário</div>
+            <span class="badge-soft">média histórica</span>
           </div>
 
           <!-- filtros -->
           <div class="mb-2">
             <button class="filter-chip active" data-range="all">24h</button>
-            <button class="filter-chip" data-range="madrugada">Madrugada (00–05h)</button>
-            <button class="filter-chip" data-range="manha">Manhã (06–11h)</button>
-            <button class="filter-chip" data-range="tarde">Tarde (12–17h)</button>
-            <button class="filter-chip" data-range="noite">Noite (18–23h)</button>
+            <button class="filter-chip" data-range="madrugada">00–05h</button>
+            <button class="filter-chip" data-range="manha">06–11h</button>
+            <button class="filter-chip" data-range="tarde">12–17h</button>
+            <button class="filter-chip" data-range="noite">18–23h</button>
           </div>
 
-          <div class="row g-3 flex-grow-1 mt-1">
-            <div class="col-md-7 d-flex">
-              <canvas id="forecastChart" class="flex-grow-1"></canvas>
-            </div>
-            <div class="col-md-5">
-              <div class="small-muted mb-1">Linha do tempo resumida</div>
-              <div style="max-height: 210px; overflow-y: auto;">
-                {% if projecoes_24h %}
-                  {% for p in projecoes_24h %}
-                  <div class="forecast-timeline-row" data-hour-timeline="{{ p.hora }}">
-                    <div class="forecast-time">
-                      {{ "%02d"|format(p.hora) }}h —
-                      <span class="pill-risk
-                        {% if p.risco == 'alto' %}pill-risk-alto
-                        {% elif p.risco == 'médio' %}pill-risk-medio
-                        {% else %}pill-risk-baixo
-                        {% endif %}">
-                        {{ p.risco }}
-                      </span>
-                    </div>
-                    <div class="forecast-meta">
-                      Estimado: {{ p.valor_previsto }} ocorrências.
-                    </div>
-                  </div>
-                  {% endfor %}
-                {% else %}
-                  <div class="small-muted">Sem projeções calculadas.</div>
-                {% endif %}
+          <div class="flex-grow-1 d-flex">
+            <canvas id="forecastChart" class="flex-grow-1"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- próximos riscos -->
+    <div class="col-lg-5">
+      <div class="card-shell h-100">
+        <div class="card-inner h-100 d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="section-title">Próximos riscos previstos</span>
+            <span class="badge-soft">ranking por hora</span>
+          </div>
+          <div class="flex-grow-1" style="max-height: 230px; overflow-y:auto;">
+            {% if projecoes_24h %}
+              {% for p in projecoes_24h|sort(attribute='valor_previsto', reverse=True) %}
+              <div class="list-row d-flex justify-content-between align-items-center"
+                   data-hour-timeline="{{ p.hora }}">
+                <div>
+                  <strong>{{ "%02d"|format(p.hora) }}h</strong>
+                  <span class="small-muted ms-1">estimado {{ p.valor_previsto }}</span>
+                </div>
+                <span class="pill-risk
+                  {% if p.risco == 'alto' %}pill-risk-alto
+                  {% elif p.risco == 'médio' %}pill-risk-medio
+                  {% else %}pill-risk-baixo
+                  {% endif %}">
+                  {{ p.risco }}
+                </span>
               </div>
-            </div>
-          </div>
-
-          <div class="mt-2 small-muted">
-            <strong>Leitura rápida:</strong>
-            os picos na curva indicam janelas ideais para reforço de efetivo e
-            presença ostensiva. Use os filtros acima para mostrar apenas os
-            períodos de interesse (madrugada, manhã, tarde ou noite).
+              {% endfor %}
+            {% else %}
+              <div class="small-muted">Sem projeções calculadas.</div>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -373,13 +384,8 @@
     <div class="col-lg-3">
       <div class="card-shell h-100">
         <div class="card-inner h-100 d-flex flex-column">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <div class="section-title mb-0">Horários mais críticos</div>
-            <span class="badge-soft">última base</span>
-          </div>
-          <div class="section-sub">Clique em um horário para destacar no gráfico.</div>
-
-          <div class="flex-grow-1 mt-1">
+          <div class="section-title mb-1">Horários de maior pressão</div>
+          <div class="flex-grow-1">
             {% if top_horarios %}
               {% for h in top_horarios %}
               <div class="list-row list-row-clickable d-flex justify-content-between align-items-center"
@@ -398,11 +404,6 @@
               <div class="small-muted">Sem dados suficientes.</div>
             {% endif %}
           </div>
-
-          <div class="mt-2 small-muted">
-            Interpretação: cartões em vermelho indicam horários com concentração
-            histórica de eventos. Use-os para planejar janelas de saturação.
-          </div>
         </div>
       </div>
     </div>
@@ -411,29 +412,19 @@
     <div class="col-lg-4">
       <div class="card-shell h-100">
         <div class="card-inner h-100 d-flex flex-column">
-          <div class="section-title">Logradouros com maior incidência</div>
-          <div class="section-sub">Clique para focar o mapa tático ao lado.</div>
-
+          <div class="section-title mb-1">Logradouros com maior incidência</div>
           <div class="flex-grow-1">
             {% if top_logradouros %}
               {% for l in top_logradouros %}
               <div class="list-row list-row-clickable d-flex justify-content-between align-items-center"
                    data-logradouro="{{ l.logradouro | upper }}">
-                <div class="me-2">
-                  <div>{{ l.logradouro }}</div>
-                  <div class="small-muted">Ponto chave para PB e rondas dirigidas.</div>
-                </div>
+                <div>{{ l.logradouro }}</div>
                 <strong>{{ l.total }}</strong>
               </div>
               {% endfor %}
             {% else %}
               <div class="small-muted">Sem dados.</div>
             {% endif %}
-          </div>
-
-          <div class="mt-2 small-muted">
-            A priorização destes pontos aumenta a chance de intervenção em locais
-            onde historicamente há maior concentração de ocorrências.
           </div>
         </div>
       </div>
@@ -444,85 +435,35 @@
       <div class="card-shell h-100">
         <div class="card-inner h-100 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-1">
-            <div class="section-title mb-0">Mapa tático de risco</div>
-            <span class="badge-soft">visão ilustrativa por logradouro</span>
-          </div>
-          <div class="section-sub">
-            Círculos maiores e mais fortes indicam logradouros com maior volume de registros.
+            <span class="section-title mb-0">Mapa tático</span>
+            <span class="badge-soft">logradouros agregados</span>
           </div>
           <div id="map" class="mt-1 flex-grow-1"></div>
-          <div class="mt-2 small-muted">
-            Clique nos logradouros ao lado para focar o mapa. Na versão
-            avançada, este painel pode ser alimentado com coordenadas ponto a
-            ponto do CERPO/CERCO AI.
-          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SAZONALIDADE E ALERTAS -->
+  <!-- ALERTAS -->
   <div class="row g-3">
-    <!-- Sazonalidade -->
-    <div class="col-lg-7">
-      <div class="card-shell h-100">
-        <div class="card-inner h-100 d-flex flex-column">
-          <div class="section-title">Sazonalidade & padrões semanais</div>
-          <div class="section-sub">
-            Entenda quais dias da semana concentram mais ocorrências para ajustar
-            escala e esforço operacional.
+    <div class="col-12">
+      <div class="card-shell">
+        <div class="card-inner">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="section-title">Alertas automáticos</span>
+            <span class="badge-soft">desvios relevantes</span>
           </div>
-
-          <div class="mb-2">
-            {% if sazonalidade %}
-              {% for s in sazonalidade %}
-              <div class="mb-2">
-                <strong>{{ s.padrao }}</strong><br>
-                <span class="small-muted">{{ s.descricao }}</span>
-              </div>
-              {% endfor %}
-            {% else %}
-              <div class="small-muted mb-2">Nenhum padrão detectado.</div>
-            {% endif %}
-          </div>
-
-          <div class="divider-soft"></div>
-
-          <div class="small-muted">
-            Recomendação: combine esta visão com os horários críticos para
-            montar uma matriz <strong>Dia x Hora</strong> e direcionar o efetivo
-            justamente onde o risco é maior.
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Alertas -->
-    <div class="col-lg-5">
-      <div class="card-shell h-100">
-        <div class="card-inner h-100 d-flex flex-column">
-          <div class="section-title">Alertas inteligentes</div>
-          <div class="section-sub">
-            Gatilhos automáticos baseados em desvios relevantes da linha histórica.
-          </div>
-
-          <div class="flex-grow-1">
+          <div class="d-flex flex-wrap gap-3">
             {% if alertas %}
               {% for a in alertas %}
-              <div class="mb-2">
-                <strong>{{ a.titulo }}</strong><br>
-                <span class="small-muted">{{ a.descricao }}</span>
+              <div class="chip-critico">
+                <strong>{{ a.titulo }}</strong>
+                <span class="small-muted ms-1">{{ a.descricao }}</span>
               </div>
               {% endfor %}
             {% else %}
-              <div class="small-muted">Nenhum alerta crítico no momento.</div>
+              <span class="small-muted">Nenhum alerta crítico no momento.</span>
             {% endif %}
-          </div>
-
-          <div class="divider-soft"></div>
-          <div class="small-muted">
-            Estes alertas podem ser evoluídos para notificações em tempo real
-            integradas ao sistema de rádio ou aplicativos internos.
           </div>
         </div>
       </div>
@@ -533,8 +474,8 @@
 
 <!-- SCRIPTS DE INTERATIVIDADE -->
 <script>
-  const projecoes24h    = {{ projecoes_24h   | tojson | safe }};
-  const topLogradouros  = {{ top_logradouros | tojson | safe }};
+  const projecoes24h   = {{ projecoes_24h   | tojson | safe }};
+  const topLogradouros = {{ top_logradouros | tojson | safe }};
 
   // ---------- GRÁFICO CHART.JS ----------
   let forecastChart = null;
@@ -622,7 +563,7 @@
     });
   })();
 
-  // ---------- INTERAÇÃO: clique no horário crítico destaca barra ----------
+  // ---------- INTERAÇÃO: clique em horário crítico / timeline ----------
   (function bindHourClicks(){
     const rows = document.querySelectorAll('[data-hour]');
     rows.forEach(row => {
@@ -631,7 +572,6 @@
         const h = parseInt(row.getAttribute('data-hour'));
         const label = `${String(h).padStart(2,'0')}h`;
 
-        // pode ter sido filtrado, então procura no conjunto atual
         const idx = forecastChart.data.labels.indexOf(label);
         if (idx >= 0) {
           forecastChart.setActiveElements([{datasetIndex: 0, index: idx}]);
@@ -646,7 +586,6 @@
       });
     });
 
-    // Clique na timeline também aciona o gráfico
     document.querySelectorAll('[data-hour-timeline]').forEach(div => {
       div.addEventListener('click', () => {
         const h = parseInt(div.getAttribute('data-hour-timeline'));
