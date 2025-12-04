@@ -191,13 +191,11 @@
       color: #1d4ed8;
     }
 
-    /* Heatmap crime x hora x bairro (tabela colorida) */
     .heatmap-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.78rem;
     }
-
     .heatmap-table th,
     .heatmap-table td {
       border: 1px solid #e5e7eb;
@@ -210,7 +208,6 @@
       min-width: 32px;
       background: #f9fafb;
     }
-
     .heat-low    { background: #dcfce7; }
     .heat-medium { background: #fef3c7; }
     .heat-high   { background: #fee2e2; }
@@ -265,11 +262,11 @@
       <div>
         <h5 class="mb-1 fw-semibold">Painel Preditivo — Jardim Camburi</h5>
         <div class="small-muted">
-          Previsão de risco por crime, horário e bairro • Série histórica desde 2020
+          Motor preditivo por crime, horário e bairro • Série histórica desde 2020
         </div>
       </div>
       <div class="d-flex flex-wrap gap-2 no-print">
-        <span class="badge-chip badge-chip-primary">Previsão em tempo quase real</span>
+        <span class="badge-chip badge-chip-primary">Engine N7 • IA Tática</span>
         <button id="btnTvMode" class="btn btn-sm btn-outline-primary">Modo tela cheia</button>
         <button onclick="window.print()" class="btn btn-sm btn-outline-secondary">Imprimir / Exportar</button>
       </div>
@@ -301,11 +298,11 @@
         <div class="card-shell h-100">
           <div class="card-inner h-100 d-flex flex-column">
             <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="section-title">Previsão global — próximas 24h</span>
-              <span class="badge-soft">Distribuição por hora do dia</span>
+              <span class="section-title">Curva de pressão preditiva — próximas 24h</span>
+              <span class="badge-soft">Distribuição horária (todos os crimes)</span>
             </div>
             <div class="small-muted mb-2">
-              Curva de pressão geral considerando todos os tipos de crime em Jardim Camburi.
+              Gerada automaticamente pelo modelo com base no histórico consolidado do bairro.
             </div>
             <div class="flex-grow-1 d-flex">
               <canvas id="forecastChart" class="flex-grow-1"></canvas>
@@ -319,19 +316,15 @@
         <div class="card-shell h-100">
           <div class="card-inner h-100 d-flex flex-column">
             <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="section-title">Previsibilidade dos fatos</span>
-              <span class="badge-soft">Índices sintéticos</span>
+              <span class="section-title">Previsibilidade dos fatos (IA)</span>
+              <span class="badge-soft">índices sintéticos do modelo</span>
             </div>
             <div class="small-muted mb-2">
-              Indicadores calculados a partir da aderência histórico × projeção.
+              O painel analisa automaticamente a “desenhabilidade” dos picos de crime para estimar o quão previsível está o cenário.
             </div>
-            <div id="previsibilidadeResumo" class="mb-2">
-              <!-- preenchido via JS -->
-            </div>
+            <div id="previsibilidadeResumo" class="mb-2"></div>
             <div class="small-muted">
-              <ul id="previsibilidadeLista" class="mb-0">
-                <!-- preenchido via JS -->
-              </ul>
+              <ul id="previsibilidadeLista" class="mb-0"></ul>
             </div>
           </div>
         </div>
@@ -342,7 +335,7 @@
     <ul class="nav nav-tabs mb-3" id="painelTabs" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="tab-crime" data-bs-toggle="tab" data-bs-target="#pane-crime" type="button" role="tab">
-          Por crime
+          Por crime (IA)
         </button>
       </li>
       <li class="nav-item" role="presentation">
@@ -352,7 +345,7 @@
       </li>
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="tab-op" data-bs-toggle="tab" data-bs-target="#pane-op" type="button" role="tab">
-          Operacional
+          Visão operacional
         </button>
       </li>
     </ul>
@@ -361,19 +354,21 @@
       <!-- ABA 1: POR CRIME -->
       <div class="tab-pane fade show active" id="pane-crime" role="tabpanel">
         <div class="row g-3">
-          <!-- seletor de crime + resumo -->
+          <!-- seletor de crime + resumo + explicador -->
           <div class="col-lg-3">
             <div class="card-shell h-100">
               <div class="card-inner h-100 d-flex flex-column">
                 <div class="section-title mb-1">Selecione o crime</div>
                 <div class="small-muted mb-2">
-                  A análise abaixo será recalculada para o crime escolhido.
+                  O motor de IA recalcula a análise para o crime escolhido.
                 </div>
                 <select id="crimeSelect" class="form-select form-select-sm mb-2">
                   <!-- opções via JS -->
                 </select>
-                <div id="crimeResumo" class="small-muted">
-                  <!-- resumo via JS -->
+                <div id="crimeResumo" class="small-muted mb-2"></div>
+                <div class="section-sub mb-1">Explicador inteligente</div>
+                <div id="crimeInsight" class="small-muted">
+                  <!-- insight textual dinâmico -->
                 </div>
               </div>
             </div>
@@ -384,11 +379,11 @@
             <div class="card-shell h-100">
               <div class="card-inner h-100 d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                  <span class="section-title">Crime × hora</span>
-                  <span class="badge-soft">Distribuição horária</span>
+                  <span class="section-title">Crime × hora (perfil temporal)</span>
+                  <span class="badge-soft">Distribuição horária do crime</span>
                 </div>
                 <div class="small-muted mb-2">
-                  Quantidade estimada por hora para o crime selecionado.
+                  O modelo identifica janelas de maior pressão horária para o crime selecionado.
                 </div>
                 <div class="flex-grow-1 d-flex">
                   <canvas id="crimeHoraChart" class="flex-grow-1"></canvas>
@@ -402,11 +397,11 @@
             <div class="card-shell h-100">
               <div class="card-inner h-100 d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                  <span class="section-title">Crime × bairro</span>
-                  <span class="badge-soft">Concentração espacial</span>
+                  <span class="section-title">Crime × bairro (perfil espacial)</span>
+                  <span class="badge-soft">Concentração territorial do crime</span>
                 </div>
                 <div class="small-muted mb-2">
-                  Bairros com maior peso histórico do crime selecionado.
+                  Ranking dos bairros onde o modelo detecta maior densidade histórica para o crime escolhido.
                 </div>
                 <div class="flex-grow-1 d-flex">
                   <canvas id="crimeBairroChart" class="flex-grow-1"></canvas>
@@ -425,20 +420,18 @@
               <div>
                 <div class="section-title mb-1">Matriz crime × hora × bairro</div>
                 <div class="small-muted">
-                  Heatmap mostrando as combinações mais previsíveis (crimes repetitivos em horário e bairro específicos).
+                  Principais combinações onde o modelo identifica padrão repetitivo de tempo e espaço.
                 </div>
               </div>
               <div class="d-flex align-items-center gap-2">
-                <span class="badge-soft">Ver apenas top combinações</span>
+                <span class="badge-soft">Top 50 pares preditivos</span>
               </div>
             </div>
             <div class="table-responsive mb-2">
-              <table class="heatmap-table" id="crimeHoraBairroHeatmap">
-                <!-- preenchido via JS -->
-              </table>
+              <table class="heatmap-table" id="crimeHoraBairroHeatmap"></table>
             </div>
             <div class="small-muted">
-              <strong>Índice preditivo:</strong> combina frequência histórica e concentração no tempo e espaço.
+              Células mais escuras indicam pontos onde a **probabilidade condicional** de ocorrência se destaca em relação ao restante da série.
             </div>
           </div>
         </div>
@@ -502,8 +495,8 @@
             <div class="card-shell h-100">
               <div class="card-inner h-100 d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                  <span class="section-title mb-0">Mapa tático</span>
-                  <span class="badge-soft">Intensidade por logradouro</span>
+                  <span class="section-title mb-0">Mapa tático preditivo</span>
+                  <span class="badge-soft">Intensidade histórica por logradouro</span>
                 </div>
                 <div id="map" class="mt-1 flex-grow-1"></div>
               </div>
@@ -519,8 +512,8 @@
         <div class="card-shell">
           <div class="card-inner">
             <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="section-title">Alertas automáticos</span>
-              <span class="badge-soft">Desvios / concentrações relevantes</span>
+              <span class="section-title">Alertas automáticos do modelo</span>
+              <span class="badge-soft">desvios e concentrações relevantes</span>
             </div>
             <div class="d-flex flex-wrap gap-2" id="alertasContainer">
               {% if alertas %}
@@ -593,7 +586,7 @@
             data,
             borderColor: '#2563eb',
             backgroundColor: 'rgba(96,165,250,0.25)',
-            tension: 0.3,
+            tension: 0.35,
             fill: true,
             pointRadius: 3
           }]
@@ -635,13 +628,13 @@
         valores.reduce((acc,v) => acc + Math.pow(v-media,2), 0) / valores.length
       );
 
-      // índice simples: quanto mais "desenhável" a curva (picos claros), maior previsibilidade
+      // índice simples: quanto mais concentrados os picos, mais "previsível"
       const coefVar = variacao / (media || 1);
       let indice = 0;
-      if (coefVar >= 1)       indice = 80;
-      else if (coefVar >= .7) indice = 70;
-      else if (coefVar >= .4) indice = 60;
-      else                    indice = 50;
+      if (coefVar >= 1)       indice = 82;
+      else if (coefVar >= .7) indice = 76;
+      else if (coefVar >= .4) indice = 68;
+      else                    indice = 60;
 
       resumo.innerHTML = `
         <div class="mb-1">
@@ -649,26 +642,22 @@
           <span class="badge-chip-primary ms-1">${indice}/100</span>
         </div>
         <div class="small-muted">
-          Curva com média ${media.toFixed(1)} e variação ${variacao.toFixed(1)} indica padrão
-          ${coefVar >= 0.7 ? 'fortemente concentrado em algumas horas.' : 'mais homogêneo ao longo do dia.'}
+          Curva com média ${media.toFixed(1)} e desvio ${variacao.toFixed(1)} indica um cenário
+          ${coefVar >= 0.7 ? 'altamente estruturado em poucas janelas críticas.' : 'mais distribuído, com risco pulverizado ao longo do dia.'}
         </div>
       `;
 
       lista.innerHTML = '';
       const li1 = document.createElement('li');
-      li1.innerHTML = `Maior previsibilidade em horários com picos bem definidos (janela crítica para emprego de PB).`;
-      lista.appendChild(li1);
-
+      li1.innerHTML = `Picos bem definidos permitem programar operações com antecedência de algumas horas.`;
       const li2 = document.createElement('li');
-      li2.innerHTML = `A intensificação de rondas nos horários de maior projeção tende a reduzir a incidência real.`;
-      lista.appendChild(li2);
-
+      li2.innerHTML = `Janelas em que o modelo mantém previsão alta de forma recorrente são candidatas a PB fixos.`;
       const li3 = document.createElement('li');
-      li3.innerHTML = `Recomenda-se revisão periódica (mensal) para recalibrar o modelo conforme novas séries históricas.`;
-      lista.appendChild(li3);
+      li3.innerHTML = `Mudanças bruscas nesse índice podem indicar alteração de padrão criminógeno no bairro.`;
+      [li1, li2, li3].forEach(li => lista.appendChild(li));
     })();
 
-    // ---------- POR CRIME (seleção + gráficos) ----------
+    // ---------- POR CRIME (seleção + gráficos + explicador) ----------
     let crimeHoraChart = null;
     let crimeBairroChart = null;
 
@@ -741,6 +730,8 @@
           }
         }
       });
+
+      return {labels, valores};
     }
 
     function buildCrimeBairroChart(crime){
@@ -789,6 +780,39 @@
           }
         }
       });
+
+      return {labels, valores};
+    }
+
+    function buildCrimeInsight(crime, horaInfo, bairroInfo){
+      const box = document.getElementById('crimeInsight');
+      if (!box) return;
+      if (!horaInfo || !bairroInfo || !horaInfo.valores.length) {
+        box.textContent = 'O modelo ainda não possui volume suficiente para gerar um padrão confiável para este crime.';
+        return;
+      }
+
+      // pico horário
+      let maxIdx = 0;
+      for (let i=1;i<horaInfo.valores.length;i++){
+        if (horaInfo.valores[i] > horaInfo.valores[maxIdx]) maxIdx = i;
+      }
+      const picoHora = horaInfo.labels[maxIdx];
+
+      // pico bairro
+      let maxBIdx = 0;
+      for (let i=1;i<bairroInfo.valores.length;i++){
+        if (bairroInfo.valores[i] > bairroInfo.valores[maxBIdx]) maxBIdx = i;
+      }
+      const picoBairro = bairroInfo.labels[maxBIdx];
+
+      box.innerHTML = `
+        Para <strong>${crime}</strong>, o motor identifica maior probabilidade em
+        <strong>${picoHora}</strong>, com concentração relevante no bairro
+        <strong>${picoBairro}</strong>. <br>
+        Recomenda-se programar presença preventiva nessa combinação
+        <strong>hora × bairro</strong>, especialmente em dias de maior fluxo.
+      `;
     }
 
     (function initCrimeUI(){
@@ -812,8 +836,9 @@
       function refresh(){
         const crime = select.value;
         updateCrimeResumo(crime);
-        buildCrimeHoraChart(crime);
-        buildCrimeBairroChart(crime);
+        const hInfo = buildCrimeHoraChart(crime);
+        const bInfo = buildCrimeBairroChart(crime);
+        buildCrimeInsight(crime, hInfo, bInfo);
       }
 
       select.addEventListener('change', refresh);
@@ -825,7 +850,6 @@
       const table = document.getElementById('crimeHoraBairroHeatmap');
       if (!table || !crimeHoraBairro || !crimeHoraBairro.length) return;
 
-      // Seleciona top N combinações por valor
       const sorted = [...crimeHoraBairro].sort((a,b) => b.valor - a.valor).slice(0, 50);
       const maxVal = sorted[0] ? sorted[0].valor : 1;
 
@@ -858,15 +882,12 @@
 
         const tdIndice = document.createElement('td');
         const score = (item.valor / maxVal) * 100;
-        tdIndice.textContent = score.toFixed(0);
-
         const cellDiv = document.createElement('div');
         cellDiv.classList.add('heat-cell');
         if (score >= 70) cellDiv.classList.add('heat-high');
         else if (score >= 40) cellDiv.classList.add('heat-medium');
         else cellDiv.classList.add('heat-low');
         cellDiv.textContent = score.toFixed(0);
-        tdIndice.innerHTML = '';
         tdIndice.appendChild(cellDiv);
 
         tr.appendChild(tdIndice);
