@@ -2,33 +2,66 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>{{ titulo }}</title>
+  <title>Painel Preditivo</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
   <header>
-    <h1>{{ titulo }}</h1>
+    <h1>Painel Preditivo</h1>
+    <p class="subtitle">Visão rápida de indicadores, previsões e alertas operacionais.</p>
+    <p class="updated">Última atualização: {{ dados.ultima_atualizacao }}</p>
   </header>
 
   <main>
-    <section class="card">
-      <h2>Status do sistema</h2>
-      <p>{{ mensagem }}</p>
-      <p class="ok">/health também deve responder com {"status": "ok"}.</p>
+    <!-- KPIs principais -->
+    <section class="grid kpi-grid">
+      {% for kpi in dados.kpis %}
+        <div class="card kpi-card">
+          <span class="kpi-label">{{ kpi.nome }}</span>
+          <span class="kpi-value">{{ kpi.valor }}</span>
+        </div>
+      {% endfor %}
     </section>
 
-    <section class="card">
-      <h2>Próximos passos</h2>
-      <ol>
-        <li>Ligar esse painel à planilha do Google Sheets.</li>
-        <li>Rodar o modelo preditivo no back-end.</li>
-        <li>Mostrar previsões e insights aqui na tela.</li>
-      </ol>
+    <!-- Alertas -->
+    <section class="card alerts-card">
+      <h2>Alertas</h2>
+      <ul class="alerts-list">
+        {% for alerta in dados.alertas %}
+          <li class="alert alert-{{ alerta.nivel }}">
+            <strong>[{{ alerta.nivel|upper }}]</strong>
+            <span>{{ alerta.mensagem }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <!-- Tabela de previsões -->
+    <section class="card table-card">
+      <h2>Previsões de incidentes</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Período</th>
+            <th>Incidentes previstos</th>
+            <th>Tendência</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for previsao in dados.previsoes %}
+            <tr>
+              <td>{{ previsao.periodo }}</td>
+              <td>{{ previsao.incidentes }}</td>
+              <td class="tendencia">{{ previsao.tendencia }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </section>
   </main>
 
   <footer>
-    <small>Painel Preditivo – Flask + Render</small>
+    <small>Painel Preditivo – Flask + Render • Versão inicial (dados simulados)</small>
   </footer>
 </body>
 </html>
