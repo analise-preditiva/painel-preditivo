@@ -1,11 +1,7 @@
-flask==3.1.0
-gunicorn==23.0.0
-
 pandas
-numpy
-openpyxl
-
-google-api-python-client
+google-cloud-bigquery
 google-auth
-google-auth-httplib2
-google-auth-oauthlib
+gspread
+gspread_dataframe
+oauth2client
+python-dotenv
