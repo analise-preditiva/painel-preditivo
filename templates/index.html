@@ -617,7 +617,7 @@
 
   <script>
     // Caminho fixo do JSON gerado pelo Vertex + BigQuery
-    const JSON_URL = "/static/data/previsao_30d.json";
+    const JSON_URL = "/static/data/previsao_rua_30_d_dashboard_A.json";
 
     let chartJanela = null;
     let globalData = null;
@@ -937,7 +937,7 @@
         console.error("Erro ao carregar JSON automático:", err);
         statusBadge.classList.add("error");
         statusDot.classList.add("dot-error");
-        statusText.textContent = "Erro ao carregar JSON automático. Verifique /static/data/previsao_30d.json";
+        statusText.textContent = "Erro ao carregar JSON automático. Verifique /static/data/previsao_rua_30_d_dashboard_A.json";
       }
     }
 
