@@ -21,75 +21,65 @@
       --accent: #42e8e0;
       --accent-soft: rgba(66, 232, 224, 0.16);
       --accent-strong: #ff4b81;
+      --border: #222b4a;
       --text: #f9fafb;
-      --text-soft: #aab4d4;
-      --border-subtle: #151c34;
+      --text-soft: #a6b2d8;
       --danger: #ff4b81;
-      --danger-soft: rgba(255, 75, 129, 0.16);
+      --warning: #fbbf24;
+      --success: #34d399;
+      --muted: #4b5563;
       --radius-lg: 18px;
-      --radius-md: 12px;
+      --radius-xl: 26px;
+      --shadow-soft: 0 16px 40px rgba(15, 23, 42, 0.7);
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: radial-gradient(circle at top, #101532 0, #020313 55%, #000 100%);
-      color: var(--text);
-      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      padding: 16px;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top left, #101942 0, #040617 45%, #020315 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
     }
 
-    .app-shell {
-      max-width: 1240px;
-      margin: 0 auto 48px auto;
-    }
+    .app-shell { max-width: 1320px; margin: 0 auto; }
 
     header {
       display: flex;
       justify-content: space-between;
-      gap: 16px;
       align-items: center;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
+      gap: 16px;
+      flex-wrap: wrap;
     }
 
-    .brand {
+    .title-block h1 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
       display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .brand-title {
-      display: inline-flex;
       align-items: center;
       gap: 8px;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      font-size: 13px;
     }
 
-    .chip {
-      background: linear-gradient(145deg, var(--accent-soft), rgba(66,232,224,0.04));
-      color: var(--accent);
+    .title-pill {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 9px;
       border-radius: 999px;
-      padding: 3px 10px;
-      font-size: 10px;
-      border: 1px solid rgba(66,232,224,0.4);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--text-soft);
+      text-transform: uppercase;
     }
 
-    .brand-subtitle {
-      font-size: 12px;
+    .title-block p {
+      margin-top: 4px;
+      font-size: 13px;
       color: var(--text-soft);
     }
 
-    .header-actions {
+    .actions {
       display: flex;
       align-items: center;
       gap: 10px;
@@ -97,1103 +87,863 @@
       justify-content: flex-end;
     }
 
-    .upload-wrapper {
-      position: relative;
-      overflow: hidden;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #1b2550, #101730);
-      border: 1px solid rgba(148, 163, 255, 0.5);
-      padding: 0;
-    }
-
-    .upload-button {
-      padding: 8px 14px;
-      font-size: 12px;
-      border: none;
-      background: transparent;
-      color: var(--text);
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .upload-button span.icon {
-      width: 14px;
-      height: 14px;
-      border-radius: 999px;
-      border: 1px solid var(--accent);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      color: var(--accent);
-    }
-
-    .upload-input {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-    }
-
-    .status-pill {
+    .badge-secondary {
       font-size: 11px;
       padding: 4px 10px;
       border-radius: 999px;
-      border: 1px solid rgba(148,163,255,0.35);
+      border: 1px solid rgba(148, 163, 184, 0.5);
       color: var(--text-soft);
-      background: rgba(15,23,42,0.8);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: radial-gradient(circle at top left, #1f2937 0, #020617 45%);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.6);
+    }
+
+    .badge-secondary.error {
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+    }
+
+    .dot-live {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 5px rgba(66, 232, 224, 0.25);
+    }
+
+    .dot-error {
+      background: #ef4444;
+      box-shadow: 0 0 0 5px rgba(248, 113, 113, 0.3);
+    }
+
+    main { display: flex; flex-direction: column; gap: 18px; }
+
+    /* KPI row */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .kpi-card {
+      background: radial-gradient(circle at top left, #182544 0, #050816 46%, #020617 100%);
+      border-radius: var(--radius-xl);
+      padding: 16px 18px 18px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(66, 232, 224, 0.14), transparent 70%);
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .kpi-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-soft);
+    }
+
+    .kpi-chip {
+      font-size: 10px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--text-soft);
+    }
+
+    .kpi-main { position: relative; z-index: 1; }
+
+    .kpi-value {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .kpi-footer {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pressure-pill {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
       display: inline-flex;
       align-items: center;
       gap: 6px;
     }
 
-    .status-dot {
+    .pressure-dot {
       width: 8px;
       height: 8px;
-      border-radius: 50%;
-      background: #4b5563;
-    }
-
-    .status-dot.ok {
-      background: #22c55e;
-      box-shadow: 0 0 6px rgba(34,197,94,0.8);
-    }
-
-    .status-dot.warn {
-      background: #eab308;
-      box-shadow: 0 0 6px rgba(234, 179, 8, 0.8);
-    }
-
-    .status-tag {
-      font-size: 10px;
-      padding: 2px 7px;
       border-radius: 999px;
-      border: 1px solid rgba(148,163,255,0.45);
-      background: rgba(15,23,42,0.95);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-soft);
     }
 
-    main {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+    .pressure-low {
+      background: rgba(37, 99, 235, 0.18);
+      border: 1px solid rgba(59, 130, 246, 0.6);
+      color: #bfdbfe;
     }
 
-    .grid {
+    .pressure-attention {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(251, 191, 36, 0.7);
+      color: #fed7aa;
+    }
+
+    .pressure-high {
+      background: rgba(248, 113, 113, 0.12);
+      border: 1px solid rgba(248, 113, 113, 0.7);
+      color: #fecaca;
+    }
+
+    .pressure-critical {
+      background: rgba(220, 38, 38, 0.16);
+      border: 1px solid rgba(248, 113, 113, 0.9);
+      color: #fee2e2;
+    }
+
+    .pressure-dot.low { background: #60a5fa; }
+    .pressure-dot.attention { background: #fbbf24; }
+    .pressure-dot.high { background: #fb7185; }
+    .pressure-dot.critical { background: #ef4444; }
+
+    .kpi-footnote {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Second row: chart + resumo */
+    .grid-2 {
       display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.3fr);
       gap: 14px;
-    }
-
-    .grid-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    @media (max-width: 960px) {
-      .grid-3 {
-        grid-template-columns: 1fr;
-      }
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .header-actions {
-        justify-content: flex-start;
-      }
     }
 
     .card {
-      background: radial-gradient(circle at top left, rgba(148,163,255,0.16) 0, transparent 45%),
-                  linear-gradient(145deg, #050818, #050617);
+      background: radial-gradient(circle at top left, #111827 0, #020617 60%);
       border-radius: var(--radius-lg);
-      border: 1px solid var(--border-subtle);
-      padding: 14px 16px;
-      box-shadow:
-        0 10px 30px rgba(8, 10, 35, 0.79),
-        0 0 0 1px rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      padding: 16px 18px;
+      box-shadow: 0 14px 36px rgba(15, 23, 42, 0.8);
     }
 
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
       margin-bottom: 10px;
+      gap: 10px;
     }
 
     .card-title {
-      font-size: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
       color: var(--text-soft);
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
     }
 
-    .card-title span.dot {
+    .card-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .chip-soft {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .chip-soft-dot {
       width: 6px;
       height: 6px;
       border-radius: 999px;
       background: var(--accent);
-      box-shadow: 0 0 10px rgba(66, 232, 224, 0.8);
     }
 
-    .card-tag {
-      font-size: 10px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,255,0.4);
-      color: var(--text-soft);
-      background: rgba(15,23,42,0.9);
-    }
+    .chart-wrapper { height: 220px; margin-top: 6px; }
 
-    .kpi-value {
-      font-size: 26px;
-      font-weight: 600;
-    }
-
-    .kpi-sub {
-      font-size: 11px;
-      color: var(--text-soft);
-      margin-top: 4px;
-      line-height: 1.4;
-    }
-
-    .kpi-pill {
-      margin-top: 8px;
-      display: inline-flex;
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 10px;
-      gap: 6px;
-      align-items: center;
-      border: 1px solid rgba(148,163,255,0.6);
-      background: rgba(15,23,42,0.9);
-      color: var(--text-soft);
-    }
-
-    .kpi-pill .bullet {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: var(--accent);
-    }
-
-    .kpi-pill.danger {
-      border-color: rgba(248,113,113,0.9);
-      background: rgba(127,29,29,0.9);
-      color: #fecaca;
-    }
-
-    .kpi-pill.danger .bullet {
-      background: #f87171;
-    }
-
-    .kpi-pill.warn {
-      border-color: rgba(234,179,8,0.85);
-      background: rgba(113,63,18,0.96);
-      color: #facc15;
-    }
-
-    .kpi-pill.warn .bullet {
-      background: #fbbf24;
-    }
-
-    .badge-escopo {
-      font-size: 10px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,255,0.5);
-      color: var(--text-soft);
-      background: rgba(15,23,42,0.9);
-    }
-
-    .badge-escopo span {
-      color: var(--accent);
-      font-weight: 500;
-    }
-
-    .badge-escopo button {
-      border: none;
-      background: transparent;
-      color: #e5e7eb;
-      font-size: 10px;
-      cursor: pointer;
-      margin-left: 6px;
-      text-decoration: underline dotted;
-    }
-
-    .chart-container {
-      height: 240px;
-    }
-
-    .chart-footer {
-      margin-top: 4px;
-      font-size: 10px;
-      color: var(--text-soft);
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .chart-legend {
-      display: inline-flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .chip-mini {
-      font-size: 10px;
-      padding: 3px 7px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,255,0.4);
-      background: rgba(15,23,42,0.95);
-      color: var(--text-soft);
-    }
-
-    .small-note {
-      font-size: 10px;
-      color: var(--text-soft);
-      opacity: 0.9;
-    }
-
-    .diag-text {
-      font-size: 11px;
+    .summary-text {
+      font-size: 13px;
       color: var(--text-soft);
       line-height: 1.5;
-    }
-
-    .diag-highlight {
-      color: var(--accent);
-      font-weight: 500;
-    }
-
-    .diag-list {
       margin-top: 6px;
-      padding-left: 16px;
-      font-size: 11px;
+    }
+
+    .summary-text strong { color: var(--accent); }
+
+    .summary-list {
+      margin-top: 10px;
+      font-size: 12px;
       color: var(--text-soft);
     }
 
-    .diag-list li {
+    .summary-list li {
+      margin-left: 16px;
       margin-bottom: 4px;
     }
 
-    /* Tabelas */
-
-    .tables-grid {
+    /* Third row: top ruas + detalhamento por dia */
+    .grid-2-bottom {
       display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr);
       gap: 14px;
-    }
-
-    @media (max-width: 960px) {
-      .tables-grid {
-        grid-template-columns: 1fr;
-      }
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 11px;
+      font-size: 12px;
     }
 
     th, td {
-      padding: 6px 6px;
+      padding: 6px 4px;
       text-align: left;
-      border-bottom: 1px solid rgba(15,23,42,0.9);
+      border-bottom: 1px solid rgba(31, 41, 55, 0.8);
     }
 
     th {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--text-soft);
-      background: rgba(15,23,42,0.7);
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
-
-    tbody tr {
-      cursor: pointer;
-      transition: background 0.15s ease, transform 0.05s ease;
-    }
-
-    tbody tr:nth-child(even) {
-      background: rgba(15,23,42,0.6);
-    }
-
-    tbody tr:nth-child(odd) {
-      background: rgba(15,23,42,0.3);
-    }
-
-    tbody tr:hover {
-      background: rgba(56,189,248,0.2);
-      transform: translateY(-1px);
-    }
-
-    td {
-      color: #e5e7eb;
-    }
-
-    td.muted {
-      color: var(--text-soft);
-      font-size: 10px;
-    }
-
-    .nivel-pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 10px;
-      border: 1px solid rgba(148,163,255,0.6);
-      background: rgba(15,23,42,0.95);
-      color: var(--text-soft);
-      min-width: 46px;
-    }
-
-    .nivel-pill.alto {
-      background: var(--danger-soft);
-      border-color: var(--danger);
-      color: #fecaca;
-    }
-
-    .nivel-pill.medio {
-      background: rgba(234,179,8,0.18);
-      border-color: #eab308;
-      color: #facc15;
-    }
-
-    .nivel-pill.baixo {
-      background: rgba(34,197,94,0.12);
-      border-color: #22c55e;
-      color: #bbf7d0;
-    }
-
-    .table-wrapper {
-      max-height: 370px;
-      overflow: auto;
-      border-radius: 12px;
-      border: 1px solid rgba(15,23,42,0.9);
-      background: radial-gradient(circle at top, rgba(15,23,42,0.9) 0, rgba(15,23,42,0.96) 55%, #020617 100%);
-    }
-
-    .table-footer {
-      margin-top: 6px;
-      font-size: 10px;
-      color: var(--text-soft);
-    }
-
-    .table-header-actions {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .ghost-btn, .ghost-select {
-      font-size: 10px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,255,0.4);
-      background: rgba(15,23,42,0.96);
-      color: var(--text-soft);
-      outline: none;
-    }
-
-    .ghost-select {
-      padding-right: 24px;
-    }
-
-    .ghost-btn {
-      cursor: pointer;
-    }
-
-    .ghost-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .empty-message {
-      padding: 10px;
       font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
       color: var(--text-soft);
     }
 
-    .highlight-rua {
-      background: rgba(66,232,224,0.25) !important;
+    tbody tr:hover { background: rgba(15, 23, 42, 0.7); }
+
+    .tag-risk {
+      font-size: 10px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .tag-risk.Alto {
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+      background: rgba(127, 29, 29, 0.6);
+    }
+
+    .tag-risk.Médio {
+      border-color: rgba(251, 191, 36, 0.9);
+      color: #fed7aa;
+      background: rgba(113, 63, 18, 0.6);
+    }
+
+    .tag-risk.Baixo {
+      border-color: rgba(56, 189, 248, 0.85);
+      color: #e0f2fe;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .muted { color: var(--muted); }
+
+    .small-note {
+      font-size: 11px;
+      margin-top: 8px;
+      color: var(--muted);
+    }
+
+    .date-select-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    select {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      color: var(--text);
+      font-size: 12px;
+      outline: none;
+      min-width: 140px;
+    }
+
+    .pill-info {
+      font-size: 11px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      color: var(--text-soft);
+    }
+
+    @media (max-width: 960px) {
+      .kpi-row,
+      .grid-2,
+      .grid-2-bottom {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      body { padding: 16px; }
     }
   </style>
 </head>
 <body>
-<div class="app-shell">
-  <header>
-    <div class="brand">
-      <div class="brand-title">
-        <span class="chip">PREV-IA · Previsão de 30 dias · Cidade inteira</span>
+  <div class="app-shell">
+    <header>
+      <div class="title-block">
+        <h1>
+          PREV-IA
+          <span class="title-pill">Previsão de 30 dias · Cidade inteira</span>
+        </h1>
+        <p>Vertex AI + BigQuery</p>
       </div>
-      <div class="brand-subtitle">
-        Painel para ler o JSON do Vertex AI + BigQuery e mostrar, em linguagem direta,
-        como tende a ser o próximo mês. Clique em uma rua para ver o diagnóstico focado nela.
+      <div class="actions">
+        <div class="badge-secondary" id="status-badge">
+          <span class="dot-live" id="status-dot"></span>
+          <span id="status-text">Carregando dados automáticos do JSON...</span>
+        </div>
       </div>
-    </div>
+    </header>
 
-    <div class="header-actions">
-      <div class="upload-wrapper">
-        <button class="upload-button">
-          <span class="icon">↓</span>
-          <span>Carregar arquivo JSON</span>
-        </button>
-        <input class="upload-input" id="fileInput" type="file" accept="application/json" />
-      </div>
+    <main>
+      <!-- KPI row -->
+      <section class="kpi-row">
+        <!-- CARD 1 -->
+        <article class="kpi-card">
+          <div class="kpi-header">
+            <div class="kpi-title">Como será o próximo mês na cidade</div>
+            <div class="kpi-chip" id="kpi-window-label">Janela 30 dias</div>
+          </div>
+          <div class="kpi-main">
+            <div class="kpi-value" id="kpi-total">–</div>
+            <div class="kpi-sub">
+              Estimativa de movimento para os próximos 30 dias na cidade inteira.
+            </div>
+          </div>
+          <div class="kpi-footer">
+            <div class="pressure-pill pressure-low" id="kpi-total-pressure">
+              <span class="pressure-dot low"></span>
+              <span id="kpi-total-pressure-label">Sem dados</span>
+            </div>
+            <div class="kpi-footnote" id="kpi-total-footnote">
+              Carregando o JSON para ver se o mês tende a ser tranquilo ou puxado.
+            </div>
+          </div>
+        </article>
 
-      <div class="status-pill" id="statusJson">
-        <span class="status-dot" id="statusDot"></span>
-        <span id="statusLabel">JSON não carregado</span>
-      </div>
+        <!-- CARD 2 -->
+        <article class="kpi-card">
+          <div class="kpi-header">
+            <div class="kpi-title">Média por dia</div>
+            <div class="kpi-chip" id="kpi-average-label">Média da janela</div>
+          </div>
+          <div class="kpi-main">
+            <div class="kpi-value" id="kpi-average">–</div>
+            <div class="kpi-sub">
+              Estimativa de movimento por dia, na cidade toda.
+            </div>
+          </div>
+          <div class="kpi-footer">
+            <div class="pressure-pill pressure-low" id="kpi-average-pressure">
+              <span class="pressure-dot low"></span>
+              <span id="kpi-average-pressure-label">Sem dados</span>
+            </div>
+            <div class="kpi-footnote" id="kpi-average-footnote">
+              Mostra se os dias tendem a ser mais tranquilos ou mais pesados.
+            </div>
+          </div>
+        </article>
 
-      <div class="status-tag" id="scopeTag">
-        Escopo: <strong>cidade inteira</strong>
-      </div>
-    </div>
-  </header>
+        <!-- CARD 3 -->
+        <article class="kpi-card">
+          <div class="kpi-header">
+            <div class="kpi-title">Dia mais pesado previsto</div>
+            <div class="kpi-chip" id="kpi-peak-label">Maior movimento</div>
+          </div>
+          <div class="kpi-main">
+            <div class="kpi-value" id="kpi-peak-date">–</div>
+            <div class="kpi-sub" id="kpi-peak-value">
+              Valor previsto do dia mais carregado.
+            </div>
+          </div>
+          <div class="kpi-footer">
+            <div class="pressure-pill pressure-low" id="kpi-peak-pressure">
+              <span class="pressure-dot low"></span>
+              <span id="kpi-peak-pressure-label">Sem dados</span>
+            </div>
+            <div class="kpi-footnote" id="kpi-peak-footnote">
+              Após o JSON carregar, este dia vira o foco principal de atenção.
+            </div>
+          </div>
+        </article>
+      </section>
 
-  <main>
-    <!-- KPIs principais -->
-    <section class="grid grid-3">
-      <!-- Resumo do mês -->
-      <article class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="dot"></span>
-            RESUMO DO PERÍODO
+      <!-- Chart + resumo -->
+      <section class="grid-2">
+        <article class="card">
+          <div class="card-header">
+            <div class="card-title">Linha dos próximos 30 dias</div>
+            <div class="card-badges">
+              <span class="chip-soft">
+                <span class="chip-soft-dot"></span>
+                Movimento previsto dia a dia
+              </span>
+              <span class="chip-soft" id="trend-chip">Aguardando dados...</span>
+            </div>
           </div>
-          <span class="card-tag" id="tagJanela">Janela 30 dias</span>
-        </div>
-        <div class="kpi-value" id="kpiTotal">–</div>
-        <div class="kpi-sub" id="kpiTotalSub">
-          Somando todos os dias, mostra quanto movimento é esperado no período.
-        </div>
-        <div class="kpi-pill" id="kpiTotalPill">
-          <span class="bullet"></span>
-          <span id="kpiTotalPillText">Aguardando JSON.</span>
-        </div>
-        <div style="margin-top:8px;">
-          <span class="badge-escopo">
-            Escopo atual: <span id="escopoAtual">Cidade inteira</span>
-            <button id="btnLimparFiltro" style="display:none;">Limpar filtro</button>
-          </span>
-        </div>
-      </article>
+          <div class="chart-wrapper">
+            <canvas id="chartJanela"></canvas>
+          </div>
+          <p class="small-note">
+            Cada ponto é a soma da previsão da cidade naquele dia. É uma estimativa, para planejar a escala, não um número real de ocorrências.
+          </p>
+        </article>
 
-      <!-- Dia típico -->
-      <article class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="dot"></span>
-            COMO TÊNDE A SER UM DIA NORMAL
+        <article class="card">
+          <div class="card-header">
+            <div class="card-title">Diagnóstico do mês (IA)</div>
+            <div class="card-badges">
+              <span class="chip-soft">Resumo automático a partir do JSON</span>
+            </div>
           </div>
-          <span class="card-tag">Média da janela</span>
-        </div>
-        <div class="kpi-value" id="kpiMedia">–</div>
-        <div class="kpi-sub" id="kpiMediaSub">
-          Média diária prevista para o período.
-        </div>
-        <div class="kpi-pill warn" id="kpiMediaPill">
-          <span class="bullet"></span>
-          <span id="kpiMediaPillText">Aguardando JSON.</span>
-        </div>
-      </article>
+          <p class="summary-text" id="summary-text">
+            Assim que o JSON for carregado, o painel mostra em poucas linhas se o mês tende a ser tranquilo, moderado, puxado ou muito pesado.
+          </p>
+          <ul class="summary-list" id="summary-list">
+            <li>Mostra a média por dia e o dia mais pesado.</li>
+            <li>Ajuda a decidir onde e quando reforçar as equipes.</li>
+            <li>Texto direto, sem termos técnicos.</li>
+          </ul>
+        </article>
+      </section>
 
-      <!-- Dia mais pesado -->
-      <article class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="dot"></span>
-            DIA MAIS PESADO PREVISTO
+      <!-- Top ruas + detalhamento -->
+      <section class="grid-2-bottom">
+        <article class="card">
+          <div class="card-header">
+            <div class="card-title">Locais com maior chance de demanda</div>
+            <div class="card-badges">
+              <span class="chip-soft">Top logradouros do JSON</span>
+            </div>
           </div>
-          <span class="card-tag">Maior movimento</span>
-        </div>
-        <div class="kpi-value" id="kpiPicoData">–</div>
-        <div class="kpi-sub">
-          Valor previsto para o dia de maior movimento:
-          <span id="kpiPicoValor">–</span>
-        </div>
-        <div class="kpi-pill danger" id="kpiPicoPill">
-          <span class="bullet"></span>
-          <span id="kpiPicoPillText">Aguardando JSON.</span>
-        </div>
-      </article>
-    </section>
-
-    <!-- Gráfico + Diagnóstico -->
-    <section class="grid" style="grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);">
-      <!-- Gráfico -->
-      <article class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="dot"></span>
-            LINHA DOS PRÓXIMOS 30 DIAS
-          </div>
-          <div class="table-header-actions">
-            <span class="chip-mini" id="chipModoSerie">Movimento previsto por dia (cidade)</span>
-          </div>
-        </div>
-        <div class="chart-container">
-          <canvas id="chartJanela"></canvas>
-        </div>
-        <div class="chart-footer">
-          <div class="chart-legend">
-            <span class="chip-mini">Cada ponto = previsão total do dia</span>
-            <span class="chip-mini" id="chipEscopoSerie">Escopo: cidade inteira</span>
-          </div>
-          <div class="small-note">
-            Estimativa para planejamento de escala e rotas, não é número real de ocorrências.
-          </div>
-        </div>
-      </article>
-
-      <!-- Diagnóstico IA -->
-      <article class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="dot"></span>
-            DIAGNÓSTICO DO PERÍODO (IA)
-          </div>
-          <span class="card-tag" id="diagModo">Resumo automático do JSON</span>
-        </div>
-        <div class="diag-text" id="diagResumoPrincipal">
-          Aguardando carregamento do JSON.
-        </div>
-        <ul class="diag-list" id="diagLista">
-          <li>Carregue um arquivo JSON para ver o diagnóstico do mês.</li>
-        </ul>
-      </article>
-    </section>
-
-    <!-- Tabelas -->
-    <section class="tables-grid">
-      <!-- Top logradouros -->
-      <article class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="dot"></span>
-            LOCAIS COM MAIOR CHANCE DE DEMANDA
-          </div>
-          <div class="table-header-actions">
-            <span class="ghost-btn">Top logradouros do JSON</span>
-          </div>
-        </div>
-
-        <div class="table-wrapper">
           <table>
             <thead>
-            <tr>
-              <th style="width:50%;">Logradouro</th>
-              <th style="width:20%;">Bairro</th>
-              <th style="width:15%;">Índice</th>
-              <th style="width:15%;">Nível</th>
-            </tr>
+              <tr>
+                <th>Logradouro</th>
+                <th>Bairro</th>
+                <th class="muted">Índice</th>
+                <th class="muted">Nível</th>
+              </tr>
             </thead>
-            <tbody id="tbodyTopRuas">
-            <tr>
-              <td colspan="4" class="empty-message">
-                Carregue o JSON para ver os logradouros com maior chance de demanda.
-              </td>
-            </tr>
+            <tbody id="top-ruas-body">
+              <tr>
+                <td colspan="4" class="muted">Carregando dados para listar os pontos mais sensíveis...</td>
+              </tr>
             </tbody>
           </table>
-        </div>
-        <div class="table-footer">
-          São os locais que mais aparecem na previsão. Clique em uma rua para ver o painel focado nela.
-        </div>
-      </article>
+          <p class="small-note">
+            Esses pontos são os que mais aparecem na previsão. São bons candidatos para PB, rondas dirigidas e reforço de viaturas.
+          </p>
+        </article>
 
-      <!-- Ruas por dia -->
-      <article class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="dot"></span>
-            RUAS POR DIA
+        <article class="card">
+          <div class="card-header">
+            <div class="card-title">Ruas por dia</div>
+            <div class="card-badges">
+              <span class="chip-soft">Escolha o dia e veja os locais</span>
+            </div>
           </div>
-          <div class="table-header-actions">
-            <select id="selectDataDia" class="ghost-select">
-              <option value="">Escolha um dia</option>
+          <div class="date-select-row">
+            <select id="date-select" disabled>
+              <option>Carregando datas...</option>
             </select>
+            <span class="pill-info" id="date-select-info">
+              Após carregar o JSON, escolha um dia para ver as ruas mais prováveis.
+            </span>
           </div>
-        </div>
-
-        <div class="table-wrapper">
           <table>
             <thead>
-            <tr>
-              <th style="width:65%;">Logradouro</th>
-              <th style="width:35%;">Índice no dia</th>
-            </tr>
+              <tr>
+                <th>Logradouro</th>
+                <th class="muted">Índice</th>
+              </tr>
             </thead>
-            <tbody id="tbodyRuasDia">
-            <tr>
-              <td colspan="2" class="empty-message">
-                Selecione um dia para ver as ruas que mais aparecem na previsão.
-              </td>
-            </tr>
+            <tbody id="detalhe-dia-body">
+              <tr>
+                <td colspan="2" class="muted">Nenhum dia selecionado.</td>
+              </tr>
             </tbody>
           </table>
-        </div>
-        <div class="table-footer">
-          Use essa visão para montar rotas detalhadas por dia. Clique no logradouro para filtrar os insights do topo.
-        </div>
-      </article>
-    </section>
-  </main>
-</div>
+          <p class="small-note">
+            Para cada dia, são mostradas as ruas com maior índice previsto. Isso ajuda a desenhar rotas e pontos-base específicos.
+          </p>
+        </article>
+      </section>
+    </main>
+  </div>
 
-<script>
-  let jsonData = null;
-  let chartJanela = null;
-  let filtroAtual = { tipo: 'cidade', rua: null };
+  <script>
+    // Caminho fixo do JSON gerado pelo Vertex + BigQuery
+    const JSON_URL = "/static/data/previsao_rua_30_d_dashboard_A.json";
 
-  const elKpiTotal       = document.getElementById('kpiTotal');
-  const elKpiTotalSub    = document.getElementById('kpiTotalSub');
-  const elKpiTotalPill   = document.getElementById('kpiTotalPillText');
+    let chartJanela = null;
+    let globalData = null;
 
-  const elKpiMedia       = document.getElementById('kpiMedia');
-  const elKpiMediaSub    = document.getElementById('kpiMediaSub');
-  const elKpiMediaPill   = document.getElementById('kpiMediaPillText');
+    function formatNumber(value) {
+      if (value == null || isNaN(value)) return "–";
+      return value.toLocaleString("pt-BR", {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1
+      });
+    }
 
-  const elKpiPicoData    = document.getElementById('kpiPicoData');
-  const elKpiPicoValor   = document.getElementById('kpiPicoValor');
-  const elKpiPicoPill    = document.getElementById('kpiPicoPillText');
+    function formatDateISOToBR(iso) {
+      if (!iso) return "–";
+      const [year, month, day] = iso.split("-");
+      if (!year || !month || !day) return iso;
+      return `${day}/${month}/${year}`;
+    }
 
-  const elStatusDot      = document.getElementById('statusDot');
-  const elStatusLabel    = document.getElementById('statusLabel');
-  const elScopeTag       = document.getElementById('scopeTag');
-
-  const elEscopoAtual    = document.getElementById('escopoAtual');
-  const elBtnLimparFiltro= document.getElementById('btnLimparFiltro');
-
-  const elChipSerie      = document.getElementById('chipModoSerie');
-  const elChipEscopoSerie= document.getElementById('chipEscopoSerie');
-  const elDiagResumo     = document.getElementById('diagResumoPrincipal');
-  const elDiagLista      = document.getElementById('diagLista');
-  const elDiagModo       = document.getElementById('diagModo');
-
-  const elTbodyTopRuas   = document.getElementById('tbodyTopRuas');
-  const elTbodyRuasDia   = document.getElementById('tbodyRuasDia');
-  const elSelectDataDia  = document.getElementById('selectDataDia');
-
-  document.getElementById('fileInput').addEventListener('change', handleFile);
-
-  elBtnLimparFiltro.addEventListener('click', () => {
-    filtroAtual = { tipo: 'cidade', rua: null };
-    atualizarPainelCidade();
-    destacarRuaSelecionada(null);
-  });
-
-  function handleFile(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = e => {
-      try {
-        const data = JSON.parse(e.target.result);
-        jsonData = data;
-        filtroAtual = { tipo: 'cidade', rua: null };
-        inicializarPainel();
-        setStatus('ok', 'JSON carregado · painel atualizado');
-      } catch (err) {
-        console.error(err);
-        setStatus('warn', 'Erro ao ler JSON. Verifique o arquivo.');
+    // Classificação em linguagem bem simples
+    function classifyPressure(value) {
+      if (value == null || isNaN(value)) {
+        return {
+          label: "Sem dados",
+          level: "low",
+          className: "pressure-low",
+          description: "Carregando o JSON para ver o comportamento do mês."
+        };
       }
-    };
-    reader.readAsText(file, 'utf-8');
-  }
 
-  function setStatus(tipo, texto) {
-    elStatusLabel.textContent = texto;
-    elStatusDot.classList.remove('ok','warn');
-    if (tipo === 'ok') elStatusDot.classList.add('ok');
-    if (tipo === 'warn') elStatusDot.classList.add('warn');
-  }
-
-  function inicializarPainel() {
-    if (!jsonData || !jsonData.janela_30_dias) return;
-
-    preencherTopRuas();
-    preencherSelectDatas();
-    atualizarPainelCidade();
-  }
-
-  function formatNumero(v) {
-    return v.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-  }
-
-  function formatDataLabel(iso) {
-    const d = new Date(iso + 'T00:00:00');
-    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-  }
-
-  function obterSerieCidade() {
-    const labels = jsonData.janela_30_dias.map(d => formatDataLabel(d.data));
-    const valores = jsonData.janela_30_dias.map(d => d.previsto);
-    return { labels, valores };
-  }
-
-  function obterMetricaCidade() {
-    const serie = obterSerieCidade();
-    const soma = serie.valores.reduce((a,b) => a + b, 0);
-    const media = soma / serie.valores.length;
-    let picoValor = 0;
-    let picoData = null;
-    jsonData.janela_30_dias.forEach(d => {
-      if (d.previsto > picoValor) {
-        picoValor = d.previsto;
-        picoData = d.data;
+      if (value <= 3000) {
+        return {
+          label: "Período tranquilo",
+          level: "low",
+          className: "pressure-low",
+          description: "Previsão de mês mais calmo, dentro do normal."
+        };
+      } else if (value <= 5000) {
+        return {
+          label: "Movimento moderado",
+          level: "attention",
+          className: "pressure-attention",
+          description: "Mês com movimento um pouco acima do comum."
+        };
+      } else if (value <= 7000) {
+        return {
+          label: "Mês puxado",
+          level: "high",
+          className: "pressure-high",
+          description: "Mês com bastante demanda, exige reforço em alguns dias."
+        };
+      } else {
+        return {
+          label: "Mês muito pesado",
+          level: "critical",
+          className: "pressure-critical",
+          description: "Mês muito carregado, recomenda-se reforço máximo."
+        };
       }
-    });
-    return { soma, media, picoValor, picoData };
-  }
-
-  function obterSerieRua(nomeRua) {
-    const labels = [];
-    const valores = [];
-
-    if (!jsonData.detalhamento_por_dia) {
-      return { labels: [], valores: [] };
     }
 
-    jsonData.detalhamento_por_dia.forEach(dia => {
-      labels.push(formatDataLabel(dia.data));
-      const encontrada = dia.ruas.find(r => r.logradouro === nomeRua);
-      valores.push(encontrada ? encontrada.previsao : 0);
-    });
+    function updateKpis(json) {
+      const janela = json.janela_30_dias || [];
+      const dias = janela.length || 0;
 
-    return { labels, valores };
-  }
+      const total = janela.reduce((sum, d) => sum + (Number(d.previsto) || 0), 0);
+      const media = dias ? total / dias : 0;
+      const peakObj = janela.reduce((acc, d) => {
+        const v = Number(d.previsto) || 0;
+        if (!acc || v > acc.previsto) return { data: d.data, previsto: v };
+        return acc;
+      }, null);
 
-  function obterMetricaRua(nomeRua) {
-    const serie = obterSerieRua(nomeRua);
-    if (!serie.valores.length) return { soma: 0, media: 0, picoValor: 0, picoData: null };
+      document.getElementById("kpi-window-label").textContent = dias ? `Janela ${dias} dias` : "Janela 30 dias";
 
-    const valoresPositivos = serie.valores.filter(v => v > 0);
-    const soma = valoresPositivos.reduce((a,b) => a + b, 0);
-    const media = valoresPositivos.length ? soma / valoresPositivos.length : 0;
+      // total (usa média para classificar)
+      document.getElementById("kpi-total").textContent = formatNumber(total);
+      const totalPress = classifyPressure(media);
+      const totalPressureEl = document.getElementById("kpi-total-pressure");
+      totalPressureEl.className = "pressure-pill " + totalPress.className;
+      const totalDot = totalPressureEl.querySelector(".pressure-dot");
+      if (totalDot) totalDot.className = "pressure-dot " + totalPress.level;
+      document.getElementById("kpi-total-pressure-label").textContent = totalPress.label;
+      document.getElementById("kpi-total-footnote").textContent = totalPress.description;
 
-    let picoValor = 0;
-    let picoIdx = -1;
-    serie.valores.forEach((v, idx) => {
-      if (v > picoValor) {
-        picoValor = v;
-        picoIdx = idx;
+      // média
+      document.getElementById("kpi-average").textContent = formatNumber(media);
+      const avgPress = classifyPressure(media);
+      const avgPressureEl = document.getElementById("kpi-average-pressure");
+      avgPressureEl.className = "pressure-pill " + avgPress.className;
+      const avgDot = avgPressureEl.querySelector(".pressure-dot");
+      if (avgDot) avgDot.className = "pressure-dot " + avgPress.level;
+      document.getElementById("kpi-average-pressure-label").textContent = avgPress.label;
+      document.getElementById("kpi-average-footnote").textContent =
+        "Média diária prevista: " + formatNumber(media) + ". " + avgPress.description;
+
+      // pico
+      if (peakObj) {
+        document.getElementById("kpi-peak-date").textContent = formatDateISOToBR(peakObj.data);
+        document.getElementById("kpi-peak-value").textContent =
+          "Valor previsto do dia mais pesado: " + formatNumber(peakObj.previsto);
+        const peakPress = classifyPressure(peakObj.previsto);
+        const peakPressureEl = document.getElementById("kpi-peak-pressure");
+        peakPressureEl.className = "pressure-pill " + peakPress.className;
+        const peakDot = peakPressureEl.querySelector(".pressure-dot");
+        if (peakDot) peakDot.className = "pressure-dot " + peakPress.level;
+        document.getElementById("kpi-peak-pressure-label").textContent = peakPress.label;
+        document.getElementById("kpi-peak-footnote").textContent = peakPress.description;
+      } else {
+        document.getElementById("kpi-peak-date").textContent = "–";
+        document.getElementById("kpi-peak-value").textContent = "Valor previsto do dia mais pesado.";
       }
-    });
-
-    let picoData = null;
-    if (picoIdx >= 0 && jsonData.detalhamento_por_dia[picoIdx]) {
-      picoData = jsonData.detalhamento_por_dia[picoIdx].data;
     }
 
-    return { soma, media, picoValor, picoData };
-  }
+    function updateChart(json) {
+      const ctx = document.getElementById("chartJanela").getContext("2d");
+      const janela = json.janela_30_dias || [];
+      const labels = janela.map(d => formatDateISOToBR(d.data));
+      const values = janela.map(d => Number(d.previsto) || 0);
 
-  function atualizarPainelCidade() {
-    if (!jsonData) return;
+      if (chartJanela) chartJanela.destroy();
 
-    filtroAtual = { tipo: 'cidade', rua: null };
-    elEscopoAtual.textContent = 'Cidade inteira';
-    elScopeTag.innerHTML = 'Escopo: <strong>cidade inteira</strong>';
-    elBtnLimparFiltro.style.display = 'none';
-    elChipEscopoSerie.textContent = 'Escopo: cidade inteira';
-    elChipSerie.textContent = 'Movimento previsto por dia (cidade)';
-    elDiagModo.textContent = 'Resumo automático do JSON';
-
-    const { soma, media, picoValor, picoData } = obterMetricaCidade();
-
-    elKpiTotal.textContent = formatNumero(soma);
-    elKpiTotalSub.textContent = 'Somando todos os dias, mostra quanto movimento a cidade deve ter no período.';
-    elKpiTotalPill.textContent = 'Mês com muito movimento. Bom sinal para atenção em escala e rotas.';
-
-    elKpiMedia.textContent = formatNumero(media);
-    elKpiMediaSub.textContent = 'Resumo de como tende a ser um dia comum desse período, para a cidade toda.';
-    elKpiMediaPill.textContent = 'Dia típico forte, com demanda distribuída.';
-
-    if (picoData) {
-      const dLabel = new Date(picoData + 'T00:00:00').toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
-      elKpiPicoData.textContent = dLabel;
-    } else {
-      elKpiPicoData.textContent = '–';
-    }
-    elKpiPicoValor.textContent = picoValor ? formatNumero(picoValor) : '–';
-    elKpiPicoPill.textContent = 'Dia mais crítico do período, com maior risco de sobrecarga.';
-
-    atualizarDiagnosticoCidade(soma, media, picoValor, picoData);
-
-    const serie = obterSerieCidade();
-    desenharOuAtualizarGrafico(serie.labels, serie.valores, 'Cidade inteira');
-  }
-
-  function atualizarPainelRua(nomeRua) {
-    if (!jsonData) return;
-
-    filtroAtual = { tipo: 'rua', rua: nomeRua };
-    elEscopoAtual.textContent = nomeRua;
-    elScopeTag.innerHTML = 'Escopo: <strong>logradouro</strong>';
-    elBtnLimparFiltro.style.display = 'inline';
-    elChipEscopoSerie.textContent = 'Escopo: ' + nomeRua;
-    elChipSerie.textContent = 'Movimento previsto por dia (logradouro)';
-    elDiagModo.textContent = 'Diagnóstico focado no logradouro selecionado';
-
-    const { soma, media, picoValor, picoData } = obterMetricaRua(nomeRua);
-
-    elKpiTotal.textContent = formatNumero(soma);
-    elKpiTotalSub.textContent = 'Somando os dias em que o logradouro aparece na previsão.';
-    elKpiTotalPill.textContent = 'Bom candidato para PB, rondas dirigidas e reforço local.';
-
-    elKpiMedia.textContent = formatNumero(media);
-    elKpiMediaSub.textContent = 'Média apenas nos dias em que a rua aparece com previsão relevante.';
-    elKpiMediaPill.textContent = 'Ajuda a entender se o risco é pontual ou constante.';
-
-    if (picoData) {
-      const dLabel = new Date(picoData + 'T00:00:00').toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
-      elKpiPicoData.textContent = dLabel;
-    } else {
-      elKpiPicoData.textContent = '–';
-    }
-    elKpiPicoValor.textContent = picoValor ? formatNumero(picoValor) : '–';
-    elKpiPicoPill.textContent = 'Dia mais crítico previsto apenas para este logradouro.';
-
-    atualizarDiagnosticoRua(nomeRua, soma, media, picoValor, picoData);
-
-    const serie = obterSerieRua(nomeRua);
-    desenharOuAtualizarGrafico(serie.labels, serie.valores, nomeRua);
-  }
-
-  function desenharOuAtualizarGrafico(labels, valores, labelSerie) {
-    const ctx = document.getElementById('chartJanela').getContext('2d');
-
-    if (!chartJanela) {
       chartJanela = new Chart(ctx, {
-        type: 'line',
+        type: "line",
         data: {
           labels,
           datasets: [{
-            label: labelSerie,
-            data: valores,
+            label: "Movimento previsto",
+            data: values,
             tension: 0.35,
-            borderWidth: 2,
-            pointRadius: 0,
-            borderColor: '#42e8e0',
             fill: true,
-            backgroundColor: 'rgba(66,232,224,0.15)'
+            borderWidth: 2,
+            pointRadius: 2,
+            pointHoverRadius: 4
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          scales: {
-            x: {
-              ticks: {
-                color: '#9ca3af',
-                maxRotation: 0,
-                autoSkip: true,
-                maxTicksLimit: 8
-              },
-              grid: { display: false }
-            },
-            y: {
-              ticks: {
-                color: '#9ca3af',
-                callback: value => value.toLocaleString('pt-BR')
-              },
-              grid: {
-                color: 'rgba(31,41,55,0.8)',
-                drawBorder: false
-              }
-            }
-          },
           plugins: {
             legend: { display: false },
             tooltip: {
               callbacks: {
-                label: ctx => formatNumero(ctx.parsed.y) + ' ocorrências previstas'
+                label: ctx => " " + formatNumber(ctx.parsed.y)
               }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: "#9ca3af", maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
+              grid: { display: false }
+            },
+            y: {
+              ticks: {
+                color: "#9ca3af",
+                callback: value => formatNumber(value)
+              },
+              grid: { color: "rgba(55, 65, 81, 0.4)", drawBorder: false }
             }
           }
         }
       });
-    } else {
-      chartJanela.data.labels = labels;
-      chartJanela.data.datasets[0].data = valores;
-      chartJanela.data.datasets[0].label = labelSerie;
-      chartJanela.update();
-    }
-  }
 
-  // ===== TABELAS =====
-
-  function preencherTopRuas() {
-    if (!jsonData.top_ruas || !jsonData.top_ruas.length) {
-      elTbodyTopRuas.innerHTML = '<tr><td colspan="4" class="empty-message">JSON não trouxe top_ruas.</td></tr>';
-      return;
-    }
-
-    const linhas = jsonData.top_ruas.slice().sort((a,b) => b.previsto - a.previsto);
-
-    elTbodyTopRuas.innerHTML = '';
-    linhas.forEach(item => {
-      const tr = document.createElement('tr');
-      tr.dataset.logradouro = item.logradouro;
-
-      const nivel = (item.risco || '').toLowerCase();
-      let nivelClass = 'nivel-pill';
-      if (nivel === 'alto') nivelClass += ' alto';
-      else if (nivel === 'médio' || nivel === 'medio') nivelClass += ' medio';
-      else nivelClass += ' baixo';
-
-      tr.innerHTML = `
-        <td>${item.logradouro}</td>
-        <td class="muted">${item.bairro || '-'}</td>
-        <td>${formatNumero(item.previsto)}</td>
-        <td><span class="${nivelClass}">${item.risco || '–'}</span></td>
-      `;
-
-      tr.addEventListener('click', () => {
-        selecionarRua(item.logradouro);
-      });
-
-      elTbodyTopRuas.appendChild(tr);
-    });
-  }
-
-  function preencherSelectDatas() {
-    elSelectDataDia.innerHTML = '<option value="">Escolha um dia</option>';
-
-    if (!jsonData.detalhamento_por_dia || !jsonData.detalhamento_por_dia.length) return;
-
-    jsonData.detalhamento_por_dia.forEach(d => {
-      const opt = document.createElement('option');
-      const label = new Date(d.data + 'T00:00:00')
-        .toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
-      opt.value = d.data;
-      opt.textContent = label;
-      elSelectDataDia.appendChild(opt);
-    });
-
-    elSelectDataDia.addEventListener('change', () => {
-      const data = elSelectDataDia.value;
-      preencherRuasPorDia(data);
-    });
-
-    // opcional: já seleciona o primeiro dia
-    elSelectDataDia.selectedIndex = 1;
-    preencherRuasPorDia(elSelectDataDia.value);
-  }
-
-  function preencherRuasPorDia(dataIso) {
-    if (!dataIso) {
-      elTbodyRuasDia.innerHTML = '<tr><td colspan="2" class="empty-message">Selecione um dia para ver as ruas.</td></tr>';
-      return;
-    }
-
-    const dia = jsonData.detalhamento_por_dia.find(d => d.data === dataIso);
-    if (!dia || !dia.ruas || !dia.ruas.length) {
-      elTbodyRuasDia.innerHTML = '<tr><td colspan="2" class="empty-message">Nenhuma rua encontrada para a data selecionada.</td></tr>';
-      return;
-    }
-
-    const linhas = dia.ruas.slice().sort((a,b) => b.previsao - a.previsao).slice(0, 50);
-
-    elTbodyRuasDia.innerHTML = '';
-    linhas.forEach(item => {
-      const tr = document.createElement('tr');
-      tr.dataset.logradouro = item.logradouro;
-      tr.innerHTML = `
-        <td>${item.logradouro}</td>
-        <td>${formatNumero(item.previsao)}</td>
-      `;
-      tr.addEventListener('click', () => {
-        selecionarRua(item.logradouro);
-      });
-      elTbodyRuasDia.appendChild(tr);
-    });
-
-    destacarRuaSelecionada(filtroAtual.rua);
-  }
-
-  function destacarRuaSelecionada(nomeRua) {
-    document.querySelectorAll('[data-logradouro]').forEach(el => {
-      el.classList.remove('highlight-rua');
-      if (nomeRua && el.dataset.logradouro === nomeRua) {
-        el.classList.add('highlight-rua');
+      // tendência simples
+      const n = values.length;
+      let trendText = "Sem dados suficientes";
+      if (n >= 8) {
+        const firstSlice = values.slice(0, Math.floor(n / 3));
+        const lastSlice = values.slice(n - Math.floor(n / 3));
+        const avg = arr => (arr.reduce((s, v) => s + v, 0) / arr.length) || 0;
+        const firstAvg = avg(firstSlice);
+        const lastAvg = avg(lastSlice);
+        if (lastAvg > firstAvg * 1.08) trendText = "Tende a subir ao longo do mês";
+        else if (lastAvg < firstAvg * 0.92) trendText = "Tende a cair ao longo do mês";
+        else trendText = "Mantém padrão parecido ao longo do mês";
       }
-    });
-  }
-
-  function selecionarRua(nomeRua) {
-    if (!jsonData) return;
-    atualizarPainelRua(nomeRua);
-    destacarRuaSelecionada(nomeRua);
-  }
-
-  // ===== DIAGNÓSTICOS =====
-
-  function atualizarDiagnosticoCidade(soma, media, picoValor, picoData) {
-    const picoLabel = picoData
-      ? new Date(picoData + 'T00:00:00').toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' })
-      : '–';
-
-    elDiagResumo.innerHTML =
-      `<span class="diag-highlight">Diagnóstico do período (cidade inteira):</span><br>` +
-      `Mês com bastante movimento previsto.`;
-
-    elDiagLista.innerHTML = `
-      <li><strong>Média por dia prevista:</strong> ${formatNumero(media)} ocorrências.</li>
-      <li><strong>Dia mais carregado:</strong> ${picoLabel} (índice ${formatNumero(picoValor)}).</li>
-      <li><strong>O que isso mostra:</strong> período pesado, com boa parte dos dias acima do padrão.</li>
-      <li><strong>Como usar na rotina:</strong> planeje escala e reforço olhando especialmente para o dia mais carregado e para o trecho da linha de 30 dias onde o gráfico se aproxima do pico.</li>
-      <li><strong>Próximo passo:</strong> combine esse diagnóstico com a lista de locais mais sensíveis e o detalhe por dia para montar rotas, PBs e reforço de viaturas.</li>
-    `;
-  }
-
-  function atualizarDiagnosticoRua(nomeRua, soma, media, picoValor, picoData) {
-    const picoLabel = picoData
-      ? new Date(picoData + 'T00:00:00').toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' })
-      : '–';
-
-    let classificacao;
-    if (soma === 0 || !picoData) {
-      classificacao = 'baixo impacto na janela atual.';
-    } else if (picoValor >= 2.5) {
-      classificacao = 'ponto crítico dentro da janela, exigindo atenção especial.';
-    } else if (picoValor >= 1.8) {
-      classificacao = 'logradouro quente, aparecendo com frequência relevante.';
-    } else {
-      classificacao = 'logradouro com demanda distribuída, mas presente de forma constante.';
+      document.getElementById("trend-chip").textContent = trendText;
     }
 
-    elDiagResumo.innerHTML =
-      `<span class="diag-highlight">Diagnóstico do período para: ${nomeRua}</span><br>` +
-      `A rua aparece com ${classificacao}`;
+    // Resumo leigo
+    function updateSummary(json) {
+      const janela = json.janela_30_dias || [];
+      if (!janela.length) return;
 
-    elDiagLista.innerHTML = `
-      <li><strong>Volume previsto somando a janela:</strong> ${formatNumero(soma)} pontos de demanda.</li>
-      <li><strong>Média quando a rua aparece:</strong> ${formatNumero(media)} por dia de ocorrência.</li>
-      <li><strong>Dia mais sensível:</strong> ${picoLabel} (índice ${formatNumero(picoValor)}).</li>
-      <li><strong>Como usar na rotina:</strong> candidate a rua para PB, rondas dirigidas ou reforço em horários de maior fluxo desse dia.</li>
-      <li><strong>Próximo passo:</strong> cruzar esse logradouro com outros dados (tipo de crime, horário crítico e viatura disponível) para montar uma estratégia fina de presença.</li>
-    `;
-  }
-</script>
+      const total = janela.reduce((s, d) => s + Number(d.previsto || 0), 0);
+      const media = total / janela.length;
+      const peak = janela.reduce((a, b) => (b.previsto > a.previsto ? b : a));
+
+      let diagnostico = "Mês tranquilo";
+      if (media > 3000 && media <= 5000) diagnostico = "Movimento moderado";
+      else if (media > 5000 && media <= 7000) diagnostico = "Mês puxado";
+      else if (media > 7000) diagnostico = "Mês muito pesado";
+
+      const texto = `
+        <strong>${diagnostico}</strong>.<br><br>
+        Média por dia prevista: <strong>${formatNumber(media)}</strong>.<br>
+        Dia com maior movimento previsto: <strong>${formatDateISOToBR(peak.data)}</strong>.<br>
+        Valor previsto do dia mais pesado: <strong>${formatNumber(peak.previsto)}</strong>.
+      `;
+
+      document.getElementById("summary-text").innerHTML = texto;
+
+      document.getElementById("summary-list").innerHTML = `
+        <li>Use o mês puxado ou tranquilo para planejar escala e reforço.</li>
+        <li>Dê mais atenção ao dia mais pesado mostrado acima.</li>
+        <li>Combine esta leitura com os locais mais sensíveis da lista ao lado.</li>
+      `;
+    }
+
+    function updateTopRuas(json) {
+      const body = document.getElementById("top-ruas-body");
+      const lista = json.top_ruas || [];
+      if (!lista.length) {
+        body.innerHTML =
+          '<tr><td colspan="4" class="muted">O JSON não contém o bloco "top_ruas".</td></tr>';
+        return;
+      }
+
+      const top = lista.slice(0, 15);
+      body.innerHTML = top.map(r => {
+        const bairro =
+          r.bairro && r.bairro !== "- informação não encontrada -" ? r.bairro : "<span class='muted'>–</span>";
+        const risco = r.risco || "Baixo";
+        return `
+          <tr>
+            <td>${r.logradouro || "-"}</td>
+            <td>${bairro}</td>
+            <td class="muted">${formatNumber(r.previsto)}</td>
+            <td><span class="tag-risk ${risco}">${risco}</span></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function updateDetalhamentoPorDia(json) {
+      const select = document.getElementById("date-select");
+      const info = document.getElementById("date-select-info");
+      const janela = json.janela_30_dias || [];
+      const det = json.detalhamento_por_dia || [];
+
+      if (!janela.length || !det.length) {
+        select.disabled = true;
+        select.innerHTML = '<option>Estrutura "detalhamento_por_dia" não encontrada</option>';
+        info.textContent =
+          "Sem o detalhamento por dia não dá para listar as ruas de cada data.";
+        return;
+      }
+
+      select.disabled = false;
+      select.innerHTML = "";
+      janela.forEach(dia => {
+        const opt = document.createElement("option");
+        opt.value = dia.data;
+        opt.textContent = formatDateISOToBR(dia.data);
+        select.appendChild(opt);
+      });
+
+      info.textContent =
+        "Escolha um dia para ver as ruas que mais aparecem na previsão (Top 50).";
+
+      select.onchange = () => {
+        const dataSelecionada = select.value;
+        const bloco = det.find(x => x.data === dataSelecionada);
+        const tbody = document.getElementById("detalhe-dia-body");
+        if (!bloco || !bloco.ruas || !bloco.ruas.length) {
+          tbody.innerHTML =
+            '<tr><td colspan="2" class="muted">Não há detalhamento para esta data no JSON.</td></tr>';
+          return;
+        }
+
+        const ordenadas = [...bloco.ruas]
+          .map(r => ({
+            logradouro: r.logradouro || "-",
+            previsao: Number(r.previsao) || 0
+          }))
+          .sort((a, b) => b.previsao - a.previsao)
+          .slice(0, 50);
+
+        tbody.innerHTML = ordenadas.map(r => `
+          <tr>
+            <td>${r.logradouro}</td>
+            <td class="muted">${formatNumber(r.previsao)}</td>
+          </tr>
+        `).join("");
+      };
+
+      if (janela[0]) {
+        select.value = janela[0].data;
+        const event = new Event("change");
+        select.dispatchEvent(event);
+      }
+    }
+
+    // Carregamento automático do JSON
+    async function carregarJsonAutomatico() {
+      const statusBadge = document.getElementById("status-badge");
+      const statusText = document.getElementById("status-text");
+      const statusDot = document.getElementById("status-dot");
+
+      try {
+        statusText.textContent = "Carregando dados do Vertex AI + BigQuery...";
+        const resp = await fetch(JSON_URL);
+        if (!resp.ok) {
+          throw new Error("HTTP " + resp.status);
+        }
+        const json = await resp.json();
+        globalData = json;
+
+        updateKpis(json);
+        updateChart(json);
+        updateSummary(json);
+        updateTopRuas(json);
+        updateDetalhamentoPorDia(json);
+
+        statusText.textContent = "JSON carregado automaticamente · painel atualizado";
+      } catch (err) {
+        console.error("Erro ao carregar JSON automático:", err);
+        statusBadge.classList.add("error");
+        statusDot.classList.add("dot-error");
+        statusText.textContent = "Erro ao carregar JSON automático. Verifique /static/data/previsao_rua_30_d_dashboard_A.json";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", carregarJsonAutomatico);
+  </script>
 </body>
 </html>
+
+
