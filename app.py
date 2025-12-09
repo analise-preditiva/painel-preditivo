@@ -2,56 +2,58 @@ from flask import Flask, render_template, request, jsonify
 import json
 import logging
 
-# Configuração básica do Flask
 app = Flask(__name__)
 
-# Limite de tamanho do upload (ex.: 10 MB)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10 MB
 
-# Logger simples para ajudar a debugar no Render
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 @app.route("/")
 def index():
-    """
-    Rota principal: carrega o painel (index.html dentro de /templates).
-    """
-    return render_template("index.html")
+    # Tela inicial / login
+    return render_template("index.html", active_page="index")
+
+
+@app.route("/dashboard")
+def dashboard():
+    # Painel principal PREV-IA Operações
+    return render_template("dashboard.html", active_page="dashboard")
+
+
+@app.route("/bairros")
+def bairros():
+    # Módulo PREV-IA Bairros
+    return render_template("bairros.html", active_page="bairros")
+
+
+@app.route("/index2")
+def index2():
+    # Você pode tratar como módulo Rotas, Ocorrências etc.
+    return render_template("index2.html", active_page="index2")
 
 
 @app.route("/health")
 def health():
-    """
-    Rota de saúde simples, útil para checagens do Render.
-    """
     return jsonify({"status": "ok"}), 200
 
 
 @app.route("/upload_json", methods=["POST"])
 def upload_json():
-    """
-    Recebe um arquivo JSON via formulário (campo name="file"),
-    valida e devolve o conteúdo para o frontend tratar.
-    """
     file = request.files.get("file")
 
     if not file:
         return jsonify({"error": "Nenhum arquivo enviado"}), 400
 
-    # Aceita apenas arquivos com extensão .json (opcional, mas ajuda)
     filename = file.filename or ""
     if not filename.lower().endswith(".json"):
         return jsonify({"error": "Envie um arquivo com extensão .json"}), 400
 
     try:
         data = json.load(file)
-
-        # Log básico para você ver nos logs do Render
         logger.info("JSON recebido com sucesso. Tipo raiz: %s", type(data).__name__)
 
-        # Aqui você só devolve o JSON bruto; o HTML/JS faz o resto
         return jsonify({
             "status": "ok",
             "data": data
@@ -73,6 +75,4 @@ def upload_json():
 
 
 if __name__ == "__main__":
-    # Em produção (Render) quem vai rodar é o gunicorn: app:app
-    # Este bloco é mais para testes locais.
     app.run(host="0.0.0.0", port=5000, debug=True)
