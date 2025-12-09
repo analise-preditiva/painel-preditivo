@@ -24,9 +24,9 @@ def dashboard():
     return render_template("dashboard.html")   # Painel principal
 
 
-@app.route("/bairros")
+@app.route("/index_bairros")
 def bairros():
-    return render_template("bairros.html")     # Módulo PREV-IA Bairros
+    return render_template("index_bairros.html")     # Módulo PREV-IA Bairros
 
 
 @app.route("/rotas")
@@ -88,3 +88,4 @@ def upload_json():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
