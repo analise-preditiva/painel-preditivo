@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>PREV-IA · Previsão 30 dias</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <!-- Fonte -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #040617;
+      --bg-elevated: #070b1f;
+      --bg-soft: #0d1227;
+      --accent: #42e8e0;
+      --accent-soft: rgba(66, 232, 224, 0.16);
+      --accent-strong: #ff4b81;
+      --border: #222b4a;
+      --text: #f9fafb;
+      --text-soft: #a6b2d8;
+      --danger: #ff4b81;
+      --warning: #fbbf24;
+      --success: #34d399;
+      --muted: #4b5563;
+      --radius-lg: 18px;
+      --radius-xl: 26px;
+      --shadow-soft: 0 16px 40px rgba(15, 23, 42, 0.7);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top left, #101942 0, #040617 45%, #020315 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .app-shell { max-width: 1320px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .title-block h1 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title-pill {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--text-soft);
+      text-transform: uppercase;
+    }
+
+    .title-block p {
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--text-soft);
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .badge-secondary {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: radial-gradient(circle at top left, #1f2937 0, #020617 45%);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.6);
+    }
+
+    .badge-secondary.error {
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+    }
+
+    .dot-live {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 5px rgba(66, 232, 224, 0.25);
+    }
+
+    .dot-error {
+      background: #ef4444;
+      box-shadow: 0 0 0 5px rgba(248, 113, 113, 0.3);
+    }
+
+    main { display: flex; flex-direction: column; gap: 18px; }
+
+    /* KPI row */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .kpi-card {
+      background: radial-gradient(circle at top left, #182544 0, #050816 46%, #020617 100%);
+      border-radius: var(--radius-xl);
+      padding: 16px 18px 18px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(66, 232, 224, 0.14), transparent 70%);
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .kpi-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-soft);
+    }
+
+    .kpi-chip {
+      font-size: 10px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--text-soft);
+    }
+
+    .kpi-main { position: relative; z-index: 1; }
+
+    .kpi-value {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .kpi-footer {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pressure-pill {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pressure-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+    }
+
+    .pressure-low {
+      background: rgba(37, 99, 235, 0.18);
+      border: 1px solid rgba(59, 130, 246, 0.6);
+      color: #bfdbfe;
+    }
+
+    .pressure-attention {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(251, 191, 36, 0.7);
+      color: #fed7aa;
+    }
+
+    .pressure-high {
+      background: rgba(248, 113, 113, 0.12);
+      border: 1px solid rgba(248, 113, 113, 0.7);
+      color: #fecaca;
+    }
+
+    .pressure-critical {
+      background: rgba(220, 38, 38, 0.16);
+      border: 1px solid rgba(248, 113, 113, 0.9);
+      color: #fee2e2;
+    }
+
+    .pressure-dot.low { background: #60a5fa; }
+    .pressure-dot.attention { background: #fbbf24; }
+    .pressure-dot.high { background: #fb7185; }
+    .pressure-dot.critical { background: #ef4444; }
+
+    .kpi-footnote {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Second row: chart + resumo */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.3fr);
+      gap: 14px;
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, #111827 0, #020617 60%);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 16px 18px;
+      box-shadow: 0 14px 36px rgba(15, 23, 42, 0.8);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .card-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .chip-soft {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .chip-soft-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .chart-wrapper { height: 220px; margin-top: 6px; }
+
+    .summary-text {
+      font-size: 13px;
+      color: var(--text-soft);
+      line-height: 1.5;
+      margin-top: 6px;
+    }
+
+    .summary-text strong { color: var(--accent); }
+
+    .summary-list {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .summary-list li {
+      margin-left: 16px;
+      margin-bottom: 4px;
+    }
+
+    /* Third row: top ruas + detalhamento por dia */
+    .grid-2-bottom {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr);
+      gap: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th, td {
+      padding: 6px 4px;
+      text-align: left;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.8);
+    }
+
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-soft);
+    }
+
+    tbody tr:hover { background: rgba(15, 23, 42, 0.7); }
+
+    .tag-risk {
+      font-size: 10px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .tag-risk.Alto {
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+      background: rgba(127, 29, 29, 0.6);
+    }
+
+    .tag-risk.Médio {
+      border-color: rgba(251, 191, 36, 0.9);
+      color: #fed7aa;
+      background: rgba(113, 63, 18, 0.6);
+    }
+
+    .tag-risk.Baixo {
+      border-color: rgba(56, 189, 248, 0.85);
+      color: #e0f2fe;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .muted { color: var(--muted); }
+
+    .small-note {
+      font-size: 11px;
+      margin-top: 8px;
+      color: var(--muted);
+    }
+
+    .date-select-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    select {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      color: var(--text);
+      font-size: 12px;
+      outline: none;
+      min-width: 140px;
+    }
+
+    .pill-info {
+      font-size: 11px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      color: var(--text-soft);
+    }
+
+    .upload-badge {
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-badge input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    /* Destaque da rua selecionada */
+    tbody tr.row-selected {
+      background: rgba(56, 189, 248, 0.25);
+    }
+
+    tbody tr.row-selected:hover {
+      background: rgba(56, 189, 248, 0.35);
+    }
+
+    .clickable-logradouro {
+      cursor: pointer;
+      text-decoration: underline;
+      text-decoration-style: dotted;
+    }
+
+    @media (max-width: 960px) {
+      .kpi-row,
+      .grid-2,
+      .grid-2-bottom {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      body { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="title-block">
+        <h1>
+          PREV-IA
+          <span class="title-pill" id="title-pill">Previsão de 30 dias · Cidade inteira</span>
+        </h1>
+        <p>Vertex AI + BigQuery</p>
+      </div>
+      <div class="actions">
+        <!-- Botão de upload (forma de carregar) -->
+        <label class="badge-secondary upload-badge">
+          <span class="dot-live"></span>
+          <span>Carregar arquivo JSON</span>
+          <input id="file-input" type="file" accept="application/json" />
+        </label>
+
+        <!-- Botão para voltar visão cidade -->
+        <button type="button" class="badge-secondary" id="btn-reset-view">
+          Ver cidade inteira
+        </button>
+
+        <!-- Status do painel -->
+        <div class="badge-secondary" id="status-badge">
+          <span class="dot-live" id="status-dot"></span>
+          <span id="status-text">Aguardando upload de JSON...</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- KPI row -->
+      <section class="kpi-row">
+        <!-- CARD 1 -->
+        <article class="kpi-card">
+          <div class="kpi-header">
+            <div class="kpi-title">Como será o próximo mês</div>
+            <div class="kpi-chip" id="kpi-window-label">Janela 30 dias</div>
+          </div>
+          <div class="kpi-main">
+            <div class="kpi-value" id="kpi-total">–</div>
+            <div class="kpi-sub" id="kpi-total-sub">
+              Estimativa de movimento para os próximos 30 dias na cidade inteira.
+            </div>
+          </div>
+          <div class="kpi-footer">
+            <div class="pressure-pill pressure-low" id="kpi-total-pressure">
+              <span class="pressure-dot low"></span>
+              <span id="kpi-total-pressure-label">Sem dados</span>
+            </div>
+            <div class="kpi-footnote" id="kpi-total-footnote">
+              Envie o JSON para ver se o mês tende a ser tranquilo ou puxado.
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 2 -->
+        <article class="kpi-card">
+          <div class="kpi-header">
+            <div class="kpi-title">Média por dia</div>
+            <div class="kpi-chip" id="kpi-average-label">Média da janela</div>
+          </div>
+          <div class="kpi-main">
+            <div class="kpi-value" id="kpi-average">–</div>
+            <div class="kpi-sub" id="kpi-average-sub">
+              Estimativa de movimento por dia, na cidade toda.
+            </div>
+          </div>
+          <div class="kpi-footer">
+            <div class="pressure-pill pressure-low" id="kpi-average-pressure">
+              <span class="pressure-dot low"></span>
+              <span id="kpi-average-pressure-label">Sem dados</span>
+            </div>
+            <div class="kpi-footnote" id="kpi-average-footnote">
+              Mostra se os dias tendem a ser mais tranquilos ou mais pesados.
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 3 -->
+        <article class="kpi-card">
+          <div class="kpi-header">
+            <div class="kpi-title">Dia mais pesado previsto</div>
+            <div class="kpi-chip" id="kpi-peak-label">Maior movimento</div>
+          </div>
+          <div class="kpi-main">
+            <div class="kpi-value" id="kpi-peak-date">–</div>
+            <div class="kpi-sub" id="kpi-peak-value">
+              Valor previsto do dia mais carregado.
+            </div>
+          </div>
+          <div class="kpi-footer">
+            <div class="pressure-pill pressure-low" id="kpi-peak-pressure">
+              <span class="pressure-dot low"></span>
+              <span id="kpi-peak-pressure-label">Sem dados</span>
+            </div>
+            <div class="kpi-footnote" id="kpi-peak-footnote">
+              Após o JSON carregar, este dia vira o foco principal de atenção.
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- Chart + resumo -->
+      <section class="grid-2">
+        <article class="card">
+          <div class="card-header">
+            <div class="card-title" id="chart-title">Linha dos próximos 30 dias</div>
+            <div class="card-badges">
+              <span class="chip-soft">
+                <span class="chip-soft-dot"></span>
+                Movimento previsto dia a dia
+              </span>
+              <span class="chip-soft" id="trend-chip">Aguardando JSON...</span>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="chartJanela"></canvas>
+          </div>
+          <p class="small-note" id="chart-note">
+            Cada ponto é a soma da previsão da cidade naquele dia. É uma estimativa, para planejar a escala, não um número real de ocorrências.
+          </p>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <div class="card-title" id="diagnostico-title">Diagnóstico do mês (IA)</div>
+            <div class="card-badges">
+              <span class="chip-soft">Resumo automático a partir do JSON</span>
+            </div>
+          </div>
+          <p class="summary-text" id="summary-text">
+            Envie o JSON para o painel mostrar, em poucas linhas, se o mês tende a ser tranquilo, moderado, puxado ou muito pesado.
+          </p>
+          <ul class="summary-list" id="summary-list">
+            <li>Mostra a média por dia e o dia mais pesado.</li>
+            <li>Ajuda a decidir onde e quando reforçar as equipes.</li>
+            <li>Texto direto, sem termos técnicos.</li>
+          </ul>
+        </article>
+      </section>
+
+      <!-- Top ruas + detalhamento -->
+      <section class="grid-2-bottom">
+        <article class="card">
+          <div class="card-header">
+            <div class="card-title">Locais com maior chance de demanda</div>
+            <div class="card-badges">
+              <span class="chip-soft">Top logradouros do JSON</span>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Logradouro</th>
+                <th>Bairro</th>
+                <th class="muted">Índice</th>
+                <th class="muted">Nível</th>
+              </tr>
+            </thead>
+            <tbody id="top-ruas-body">
+              <tr>
+                <td colspan="4" class="muted">Envie o JSON para listar os pontos mais sensíveis...</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="small-note">
+            Clique em um logradouro para ver o comportamento detalhado dessa rua nos KPIs e no gráfico.
+          </p>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <div class="card-title" id="ruas-dia-title">Ruas por dia</div>
+            <div class="card-badges">
+              <span class="chip-soft" id="ruas-dia-chip">Escolha o dia e veja os locais</span>
+            </div>
+          </div>
+          <div class="date-select-row">
+            <select id="date-select" disabled>
+              <option>Aguardando JSON...</option>
+            </select>
+            <span class="pill-info" id="date-select-info">
+              Após enviar o JSON, escolha um dia para ver as ruas mais prováveis.
+            </span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Logradouro</th>
+                <th class="muted">Índice</th>
+              </tr>
+            </thead>
+            <tbody id="detalhe-dia-body">
+              <tr>
+                <td colspan="2" class="muted">Nenhum dia selecionado.</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="small-note" id="ruas-dia-note">
+            Para cada dia, são mostradas as ruas com maior índice previsto. Isso ajuda a desenhar rotas e pontos-base específicos.
+          </p>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    let chartJanela = null;
+    let globalData = null;
+    let currentView = { mode: "cidade", logradouro: null };
+
+    function formatNumber(value) {
+      if (value == null || isNaN(value)) return "–";
+      return value.toLocaleString("pt-BR", {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1
+      });
+    }
+
+    function formatDateISOToBR(iso) {
+      if (!iso) return "–";
+      const [year, month, day] = iso.split("-");
+      if (!year || !month || !day) return iso;
+      return `${day}/${month}/${year}`;
+    }
+
+    function classifyPressure(value) {
+      if (value == null || isNaN(value)) {
+        return {
+          label: "Sem dados",
+          level: "low",
+          className: "pressure-low",
+          description: "Envie o JSON para ver o comportamento do mês."
+        };
+      }
+
+      if (value <= 3000) {
+        return {
+          label: "Período tranquilo",
+          level: "low",
+          className: "pressure-low",
+          description: "Previsão de mês mais calmo, dentro do normal."
+        };
+      } else if (value <= 5000) {
+        return {
+          label: "Movimento moderado",
+          level: "attention",
+          className: "pressure-attention",
+          description: "Mês com movimento um pouco acima do comum."
+        };
+      } else if (value <= 7000) {
+        return {
+          label: "Mês puxado",
+          level: "high",
+          className: "pressure-high",
+          description: "Mês com bastante demanda, exige reforço em alguns dias."
+        };
+      } else {
+        return {
+          label: "Mês muito pesado",
+          level: "critical",
+          className: "pressure-critical",
+          description: "Mês muito carregado, recomenda-se reforço máximo."
+        };
+      }
+    }
+
+    // Monta a janela de 30 dias para a visão atual (cidade ou rua)
+    function buildJanelaForCurrentView() {
+      if (!globalData) return [];
+      const fullJanela = globalData.janela_30_dias || [];
+
+      if (currentView.mode === "cidade" || !globalData.detalhamento_por_dia) {
+        return fullJanela;
+      }
+
+      const ruaAlvo = currentView.logradouro;
+      const detList = globalData.detalhamento_por_dia || [];
+
+      const mapa = {};
+      fullJanela.forEach(d => { mapa[d.data] = 0; });
+      detList.forEach(dia => {
+        const data = dia.data;
+        if (!(data in mapa)) mapa[data] = 0;
+        if (Array.isArray(dia.ruas)) {
+          dia.ruas.forEach(r => {
+            if (r.logradouro === ruaAlvo) {
+              mapa[data] += Number(r.previsao) || 0;
+            }
+          });
+        }
+      });
+
+      return Object.keys(mapa)
+        .sort()
+        .map(data => ({ data, previsto: mapa[data] }));
+    }
+
+    function updateContextLabels() {
+      const pill = document.getElementById("title-pill");
+      const kpiTotalSub = document.getElementById("kpi-total-sub");
+      const kpiAvgSub = document.getElementById("kpi-average-sub");
+      const chartTitle = document.getElementById("chart-title");
+      const chartNote = document.getElementById("chart-note");
+      const diagTitle = document.getElementById("diagnostico-title");
+      const ruasDiaTitle = document.getElementById("ruas-dia-title");
+      const ruasDiaChip = document.getElementById("ruas-dia-chip");
+      const ruasDiaNote = document.getElementById("ruas-dia-note");
+      const dateInfo = document.getElementById("date-select-info");
+      const btnReset = document.getElementById("btn-reset-view");
+
+      if (currentView.mode === "cidade") {
+        pill.textContent = "Previsão de 30 dias · Cidade inteira";
+        kpiTotalSub.textContent = "Estimativa de movimento para os próximos 30 dias na cidade inteira.";
+        kpiAvgSub.textContent = "Estimativa de movimento por dia na cidade inteira.";
+        chartTitle.textContent = "Linha dos próximos 30 dias (cidade inteira)";
+        chartNote.textContent = "Cada ponto é a soma da previsão da cidade naquele dia. É uma estimativa para planejar escala, não o número real de ocorrências.";
+        diagTitle.textContent = "Diagnóstico do mês (IA) · Cidade inteira";
+
+        ruasDiaTitle.textContent = "Ruas por dia";
+        ruasDiaChip.textContent = "Escolha o dia e veja os locais";
+        ruasDiaNote.textContent = "Para cada dia, são mostradas as ruas com maior índice previsto. Isso ajuda a desenhar rotas e pontos-base específicos.";
+        dateInfo.textContent = "Escolha um dia para ver as ruas que mais aparecem na previsão (Top 50).";
+
+        btnReset.disabled = true;
+        btnReset.style.opacity = "0.5";
+      } else {
+        const rua = currentView.logradouro || "Rua selecionada";
+        pill.textContent = "Previsão de 30 dias · " + rua;
+        kpiTotalSub.textContent = "Estimativa de movimento para os próximos 30 dias apenas nesta rua.";
+        kpiAvgSub.textContent = "Estimativa de movimento por dia apenas na rua selecionada.";
+        chartTitle.textContent = "Linha dos próximos 30 dias · " + rua;
+        chartNote.textContent = "Cada ponto é a previsão apenas desta rua em cada dia. Útil para planejar PB e rondas dirigidas.";
+        diagTitle.textContent = "Diagnóstico do mês (IA) · " + rua;
+
+        ruasDiaTitle.textContent = "Índice da rua por dia";
+        ruasDiaChip.textContent = "Veja o índice desta rua por data";
+        ruasDiaNote.textContent = "Para cada dia, o painel mostra o índice previsto apenas da rua selecionada. Útil para definir horários de maior atenção.";
+        dateInfo.textContent = "Escolha um dia para ver o índice previsto apenas desta rua.";
+
+        btnReset.disabled = false;
+        btnReset.style.opacity = "1";
+      }
+    }
+
+    function updateKpis(json) {
+      const janela = json.janela_30_dias || [];
+      const dias = janela.length || 0;
+
+      const total = janela.reduce((sum, d) => sum + (Number(d.previsto) || 0), 0);
+      const media = dias ? total / dias : 0;
+      const peakObj = janela.reduce((acc, d) => {
+        const v = Number(d.previsto) || 0;
+        if (!acc || v > acc.previsto) return { data: d.data, previsto: v };
+        return acc;
+      }, null);
+
+      document.getElementById("kpi-window-label").textContent = dias ? `Janela ${dias} dias` : "Janela 30 dias";
+
+      // total
+      document.getElementById("kpi-total").textContent = formatNumber(total);
+      const totalPress = classifyPressure(media);
+      const totalPressureEl = document.getElementById("kpi-total-pressure");
+      totalPressureEl.className = "pressure-pill " + totalPress.className;
+      const totalDot = totalPressureEl.querySelector(".pressure-dot");
+      if (totalDot) totalDot.className = "pressure-dot " + totalPress.level;
+      document.getElementById("kpi-total-pressure-label").textContent = totalPress.label;
+      document.getElementById("kpi-total-footnote").textContent = totalPress.description;
+
+      // média
+      document.getElementById("kpi-average").textContent = formatNumber(media);
+      const avgPress = classifyPressure(media);
+      const avgPressureEl = document.getElementById("kpi-average-pressure");
+      avgPressureEl.className = "pressure-pill " + avgPress.className;
+      const avgDot = avgPressureEl.querySelector(".pressure-dot");
+      if (avgDot) avgDot.className = "pressure-dot " + avgPress.level;
+      document.getElementById("kpi-average-pressure-label").textContent = avgPress.label;
+      document.getElementById("kpi-average-footnote").textContent =
+        "Média diária prevista: " + formatNumber(media) + ". " + avgPress.description;
+
+      // pico
+      if (peakObj) {
+        document.getElementById("kpi-peak-date").textContent = formatDateISOToBR(peakObj.data);
+        document.getElementById("kpi-peak-value").textContent =
+          "Valor previsto do dia mais pesado: " + formatNumber(peakObj.previsto);
+        const peakPress = classifyPressure(peakObj.previsto);
+        const peakPressureEl = document.getElementById("kpi-peak-pressure");
+        peakPressureEl.className = "pressure-pill " + peakPress.className;
+        const peakDot = peakPressureEl.querySelector(".pressure-dot");
+        if (peakDot) peakDot.className = "pressure-dot " + peakPress.level;
+        document.getElementById("kpi-peak-pressure-label").textContent = peakPress.label;
+        document.getElementById("kpi-peak-footnote").textContent = peakPress.description;
+      } else {
+        document.getElementById("kpi-peak-date").textContent = "–";
+        document.getElementById("kpi-peak-value").textContent = "Valor previsto do dia mais pesado.";
+      }
+    }
+
+    function updateChart(json) {
+      const ctx = document.getElementById("chartJanela").getContext("2d");
+      const janela = json.janela_30_dias || [];
+      const labels = janela.map(d => formatDateISOToBR(d.data));
+      const values = janela.map(d => Number(d.previsto) || 0);
+
+      if (chartJanela) chartJanela.destroy();
+
+      chartJanela = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [{
+            label: "Movimento previsto",
+            data: values,
+            tension: 0.35,
+            fill: true,
+            borderWidth: 2,
+            pointRadius: 2,
+            pointHoverRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => " " + formatNumber(ctx.parsed.y)
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: "#9ca3af", maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
+              grid: { display: false }
+            },
+            y: {
+              ticks: {
+                color: "#9ca3af",
+                callback: value => formatNumber(value)
+              },
+              grid: { color: "rgba(55, 65, 81, 0.4)", drawBorder: false }
+            }
+          }
+        }
+      });
+
+      const n = values.length;
+      let trendText = "Sem dados suficientes";
+      if (n >= 8) {
+        const firstSlice = values.slice(0, Math.floor(n / 3));
+        const lastSlice = values.slice(n - Math.floor(n / 3));
+        const avg = arr => (arr.reduce((s, v) => s + v, 0) / arr.length) || 0;
+        const firstAvg = avg(firstSlice);
+        const lastAvg = avg(lastSlice);
+        if (lastAvg > firstAvg * 1.08) trendText = "Tende a subir ao longo do mês";
+        else if (lastAvg < firstAvg * 0.92) trendText = "Tende a cair ao longo do mês";
+        else trendText = "Mantém padrão parecido ao longo do mês";
+      }
+      document.getElementById("trend-chip").textContent = trendText;
+    }
+
+    function updateSummary(json) {
+      const janela = json.janela_30_dias || [];
+      if (!janela.length) return;
+
+      const total = janela.reduce((s, d) => s + Number(d.previsto || 0), 0);
+      const media = total / janela.length;
+      const peak = janela.reduce((a, b) => (b.previsto > a.previsto ? b : a));
+
+      let diagnostico = "Mês tranquilo";
+      if (media > 3000 && media <= 5000) diagnostico = "Movimento moderado";
+      else if (media > 5000 && media <= 7000) diagnostico = "Mês puxado";
+      else if (media > 7000) diagnostico = "Mês muito pesado";
+
+      const contexto =
+        currentView.mode === "cidade"
+          ? "na cidade inteira"
+          : "apenas na rua <strong>" + (currentView.logradouro || "") + "</strong>";
+
+      const texto = `
+        <strong>${diagnostico}</strong>.<br><br>
+        Média por dia prevista ${contexto}: <strong>${formatNumber(media)}</strong>.<br>
+        Dia com maior movimento previsto: <strong>${formatDateISOToBR(peak.data)}</strong>.<br>
+        Valor previsto do dia mais pesado: <strong>${formatNumber(peak.previsto)}</strong>.
+      `;
+
+      document.getElementById("summary-text").innerHTML = texto;
+
+      document.getElementById("summary-list").innerHTML = `
+        <li>Use o diagnóstico para planejar escala e reforço.</li>
+        <li>Dê mais atenção ao dia mais pesado mostrado acima.</li>
+        <li>Combine esta leitura com os locais mais sensíveis da lista ao lado.</li>
+      `;
+    }
+
+    function updateTopRuas(json) {
+      const body = document.getElementById("top-ruas-body");
+      const lista = json.top_ruas || [];
+      if (!lista.length) {
+        body.innerHTML =
+          '<tr><td colspan="4" class="muted">O JSON não contém o bloco "top_ruas".</td></tr>';
+        return;
+      }
+
+      const top = lista.slice(0, 15);
+      body.innerHTML = top.map(r => {
+        const bairro =
+          r.bairro && r.bairro !== "- informação não encontrada -" ? r.bairro : "<span class='muted'>–</span>";
+        const risco = r.risco || "Baixo";
+        const logradouroTexto = r.logradouro || "-";
+        return `
+          <tr>
+            <td class="clickable-logradouro">${logradouroTexto}</td>
+            <td>${bairro}</td>
+            <td class="muted">${formatNumber(r.previsto)}</td>
+            <td><span class="tag-risk ${risco}">${risco}</span></td>
+          </tr>
+        `;
+      }).join("");
+
+      // clique na rua (um único handler)
+      body.onclick = (ev) => {
+        const cell = ev.target.closest("td");
+        if (!cell) return;
+        const row = cell.parentElement;
+        const firstCell = row.querySelector("td");
+        if (!firstCell) return;
+        const logradouro = firstCell.textContent.trim();
+        if (!logradouro || logradouro === "-" || logradouro === "–") return;
+
+        currentView.mode = "rua";
+        currentView.logradouro = logradouro;
+        highlightSelectedRua(logradouro);
+        renderView();
+      };
+    }
+
+    function highlightSelectedRua(logradouro) {
+      const body = document.getElementById("top-ruas-body");
+      Array.from(body.querySelectorAll("tr")).forEach(tr => {
+        const cell = tr.querySelector("td");
+        if (!cell) return;
+        const text = cell.textContent.trim();
+        if (text === logradouro) {
+          tr.classList.add("row-selected");
+        } else {
+          tr.classList.remove("row-selected");
+        }
+      });
+    }
+
+    function updateDetalhamentoPorDia(json) {
+      const select = document.getElementById("date-select");
+      const info = document.getElementById("date-select-info");
+      const janela = json.janela_30_dias || [];
+      const det = (globalData && globalData.detalhamento_por_dia) || json.detalhamento_por_dia || [];
+
+      if (!janela.length || !det.length) {
+        select.disabled = true;
+        select.innerHTML = '<option>Estrutura "detalhamento_por_dia" não encontrada</option>';
+        info.textContent =
+          "Sem o detalhamento por dia não dá para listar as ruas de cada data.";
+        document.getElementById("detalhe-dia-body").innerHTML =
+          '<tr><td colspan="2" class="muted">Sem dados detalhados por dia.</td></tr>';
+        return;
+      }
+
+      select.disabled = false;
+      select.innerHTML = "";
+      janela.forEach(dia => {
+        const opt = document.createElement("option");
+        opt.value = dia.data;
+        opt.textContent = formatDateISOToBR(dia.data);
+        select.appendChild(opt);
+      });
+
+      select.onchange = () => {
+        const dataSelecionada = select.value;
+        const bloco = det.find(x => x.data === dataSelecionada);
+        const tbody = document.getElementById("detalhe-dia-body");
+
+        if (!bloco || !Array.isArray(bloco.ruas) || !bloco.ruas.length) {
+          tbody.innerHTML =
+            '<tr><td colspan="2" class="muted">Não há detalhamento para esta data no JSON.</td></tr>';
+          return;
+        }
+
+        if (currentView.mode === "cidade") {
+          const ordenadas = [...bloco.ruas]
+            .map(r => ({
+              logradouro: r.logradouro || "-",
+              previsao: Number(r.previsao) || 0
+            }))
+            .sort((a, b) => b.previsao - a.previsao)
+            .slice(0, 50);
+
+          tbody.innerHTML = ordenadas.map(r => `
+            <tr>
+              <td>${r.logradouro}</td>
+              <td class="muted">${formatNumber(r.previsao)}</td>
+            </tr>
+          `).join("");
+        } else {
+          const rua = currentView.logradouro;
+          const encontrado = bloco.ruas.find(r => r.logradouro === rua);
+          if (!encontrado) {
+            tbody.innerHTML =
+              '<tr><td colspan="2" class="muted">Esta rua não aparece nesta data na previsão.</td></tr>';
+            return;
+          }
+          const valor = Number(encontrado.previsao) || 0;
+          tbody.innerHTML = `
+            <tr>
+              <td>${rua}</td>
+              <td class="muted">${formatNumber(valor)}</td>
+            </tr>
+          `;
+        }
+      };
+
+      if (janela[0]) {
+        select.value = janela[0].data;
+        const event = new Event("change");
+        select.dispatchEvent(event);
+      }
+    }
+
+    function aplicarJson(json) {
+      globalData = json;
+      currentView = { mode: "cidade", logradouro: null };
+
+      const statusBadge = document.getElementById("status-badge");
+      const statusDot = document.getElementById("status-dot");
+      const statusText = document.getElementById("status-text");
+
+      statusBadge.classList.remove("error");
+      statusDot.classList.remove("dot-error");
+      statusText.textContent = "JSON carregado via upload · visão: cidade inteira";
+
+      updateTopRuas(json);
+      renderView();
+    }
+
+    function renderView() {
+      if (!globalData) return;
+
+      const janelaVista = buildJanelaForCurrentView();
+      const jsonView = {
+        janela_30_dias: janelaVista,
+        detalhamento_por_dia: globalData.detalhamento_por_dia || []
+      };
+
+      updateKpis(jsonView);
+      updateChart(jsonView);
+      updateSummary(jsonView);
+      updateDetalhamentoPorDia(jsonView);
+      updateContextLabels();
+    }
+
+    function configurarUpload() {
+      const input = document.getElementById("file-input");
+      const statusBadge = document.getElementById("status-badge");
+      const statusDot = document.getElementById("status-dot");
+      const statusText = document.getElementById("status-text");
+
+      input.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        statusText.textContent = "Lendo arquivo JSON enviado...";
+
+        reader.onload = (e) => {
+          try {
+            const json = JSON.parse(e.target.result);
+            aplicarJson(json);
+          } catch (err) {
+            console.error("Erro ao ler JSON enviado:", err);
+            statusBadge.classList.add("error");
+            statusDot.classList.add("dot-error");
+            statusText.textContent = "Erro ao ler o arquivo JSON. Verifique o conteúdo e tente novamente.";
+          }
+        };
+
+        reader.readAsText(file, "utf-8");
+      });
+    }
+
+    function configurarResetView() {
+      const btn = document.getElementById("btn-reset-view");
+      btn.addEventListener("click", () => {
+        if (!globalData) return;
+        currentView = { mode: "cidade", logradouro: null };
+        highlightSelectedRua(""); // limpa seleção
+        renderView();
+
+        const statusText = document.getElementById("status-text");
+        statusText.textContent = "JSON carregado via upload · visão: cidade inteira";
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      configurarUpload();
+      configurarResetView();
+      updateContextLabels();
+    });
+  </script>
+</body>
+</html>
