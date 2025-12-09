@@ -427,7 +427,7 @@
         <a class="module-card" href="/index_bairros">
           <div class="module-badge">Painel principal</div>
           <div class="module-icon-wrapper">
-            <img src="modulo-bairro.png" alt="Bairros" class="module-icon-img" />
+            <img src="{{ url_for('static', filename='modulo-bairro.png') }}" alt="Bairros" class="module-icon-img" />
           </div>
           <div class="module-name">Bairros</div>
           <div class="module-desc">
@@ -440,7 +440,7 @@
         <a class="module-card" href="#" onclick="alert('Integração futura com rotas otimizadas por IA.');">
           <div class="module-badge">Em desenvolvimento</div>
           <div class="module-icon-wrapper">
-            <img src="modulo-rotas.png" alt="Rotas" class="module-icon-img" />
+            <img src="src="{{ url_for('static', filename='modulo-rotas.png') }}"" alt="Rotas" class="module-icon-img" />
           </div>
           <div class="module-name">Rotas</div>
           <div class="module-desc">
@@ -453,7 +453,7 @@
         <a class="module-card" href="#" onclick="alert('Módulo de ocorrências consolidadas e em tempo real.');">
           <div class="module-badge">Monitoramento</div>
           <div class="module-icon-wrapper">
-            <img src="modulo-ocorrencias.png" alt="Ocorrências" class="module-icon-img" />
+            <img src="src="{{ url_for('static', filename='modulo-ocorremcias.png') }}"" alt="Ocorrências" class="module-icon-img" />
           </div>
           <div class="module-name">Ocorrências</div>
           <div class="module-desc">
@@ -466,7 +466,7 @@
         <a class="module-card" href="#" onclick="alert('Visão futura de trânsito integrada ao PREV-IA.');">
           <div class="module-badge">Visão em breve</div>
           <div class="module-icon-wrapper">
-            <img src="modulo-transito.png" alt="Trânsito" class="module-icon-img" />
+            <img src="src="{{ url_for('static', filename='modulo-transito.png') }}"" alt="Trânsito" class="module-icon-img" />
           </div>
           <div class="module-name">Trânsito</div>
           <div class="module-desc">
@@ -510,5 +510,6 @@
   </script>
 </body>
 </html>
+
 
 
