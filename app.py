@@ -10,34 +10,42 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+# ------------------------------
+# ROTAS DE NAVEGAÇÃO ENTRE TELAS
+# ------------------------------
+
 @app.route("/")
 def index():
-    # Tela inicial / login
-    return render_template("index.html", active_page="index")
+    return render_template("index.html")   # Tela de login
 
 
 @app.route("/dashboard")
 def dashboard():
-    # Painel principal PREV-IA Operações
-    return render_template("dashboard.html", active_page="dashboard")
+    return render_template("dashboard.html")   # Painel principal
 
 
 @app.route("/bairros")
 def bairros():
-    # Módulo PREV-IA Bairros
-    return render_template("bairros.html", active_page="bairros")
+    return render_template("bairros.html")     # Módulo PREV-IA Bairros
 
 
-@app.route("/index2")
-def index2():
-    # Você pode tratar como módulo Rotas, Ocorrências etc.
-    return render_template("index2.html", active_page="index2")
+@app.route("/rotas")
+def rotas():
+    return render_template("index2.html")      # Módulo Rotas / index2.html
 
+
+# ------------------------------
+# SAÚDE DA APLICAÇÃO
+# ------------------------------
 
 @app.route("/health")
 def health():
     return jsonify({"status": "ok"}), 200
 
+
+# ------------------------------
+# UPLOAD DE JSON
+# ------------------------------
 
 @app.route("/upload_json", methods=["POST"])
 def upload_json():
@@ -73,6 +81,10 @@ def upload_json():
             "detalhe": str(e)
         }), 500
 
+
+# ------------------------------
+# MODO LOCAL
+# ------------------------------
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
